@@ -199,7 +199,6 @@ overrides==7.7.0
 packaging==24.0
 pandas==2.3.3
 pandas-datareader==0.10.0
-pandas_ta==0.4.71b0
 pandocfilters==1.5.1
 parso==0.8.4
 passlib==1.7.4
