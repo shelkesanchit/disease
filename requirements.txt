@@ -206,7 +206,7 @@ passlib==1.7.4
 patchify==0.2.3
 pdfkit==1.0.0
 peewee==3.17.9
-Pillow==10.0.1
+Pillow==10.4.0
 pipe==2.2
 pipwin==0.5.2
 platformdirs==4.2.0
