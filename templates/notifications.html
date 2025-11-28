@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - Grape Farm Planner{% endblock %}
+
+{% block styles %}
+<style>
+    .notification-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 1rem;
+        border: none;
+    }
+    
+    .notification-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .notification-card.unread {
+        border-left: 4px solid #1e8449;
+    }
+    
+    .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .notification-date {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .notification-actions {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .page-header {
+        position: relative;
+        padding-bottom: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .page-header:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background-color: #1e8449;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 0;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: #adb5bd;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-mark-all-read {
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="page-header">Notifications</h2>
+                {% if alerts and alerts|selectattr('is_read', 'equalto', false)|list|length > 0 %}
+                <button class="btn btn-outline-danger btn-sm" id="markAllRead" data-bs-toggle="tooltip" data-bs-placement="left" title="This will mark all notifications as read and remove them">
+                    <i class="fas fa-trash-alt me-1"></i> Clear all notifications
+                </button>
+                {% endif %}
+            </div>
+            
+            {% if alerts and alerts|length > 0 %}
+                {% for alert in alerts %}
+                <div class="card notification-card {% if not alert.is_read %}unread{% endif %}" id="alert-{{ alert._id }}">
+                    <div class="card-body">
+                        <div class="notification-header">
+                            <h5 class="card-title {% if not alert.is_read %}fw-bold{% endif %}">
+                                {% if not alert.is_read %}<i class="fas fa-circle text-success me-2" style="font-size: 0.5rem; vertical-align: middle;"></i>{% endif %}
+                                {% if alert.type == 'task' %}
+                                    <i class="fas fa-tasks text-primary me-2"></i>Task Notification
+                                {% elif alert.type == 'task_completed' %}
+                                    <i class="fas fa-check-circle text-success me-2"></i>Task Completed
+                                {% elif alert.type == 'task_reminder' %}
+                                    <i class="fas fa-clock text-warning me-2"></i>Task Reminder
+                                {% else %}
+                                    <i class="fas fa-bell text-secondary me-2"></i>Notification
+                                {% endif %}
+                            </h5>
+                            <span class="notification-date">{{ alert.created_at.strftime('%b %d, %Y at %H:%M') }}</span>
+                        </div>
+                        <p class="card-text mt-2">{{ alert.message }}</p>
+                        <div class="notification-actions">
+                            {% if not alert.is_read %}
+                            <button class="btn btn-sm btn-outline-secondary mark-read-btn" data-alert-id="{{ alert._id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Mark as read and delete notification">
+                                <i class="fas fa-check me-1"></i> Mark as read
+                            </button>
+                            {% else %}
+                            <span class="badge bg-light text-secondary">Read</span>
+                            {% endif %}
+                            
+                            {% if alert.farm_id %}
+                            <a href="{{ url_for('farm_details', farm_id=alert.farm_id) }}" class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="fas fa-eye me-1"></i> View Farm
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-bell-slash"></i>
+                    <h4>No Notifications</h4>
+                    <p class="text-muted">You don't have any notifications at the moment.</p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary mt-3">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                </div>
+            {% endif %}
+            
+            {% if alerts and alerts|length > 0 %}
+            <div class="text-center mt-4">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    
+    // Mark individual alert as read
+    const markReadButtons = document.querySelectorAll('.mark-read-btn');
+    markReadButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const alertId = this.getAttribute('data-alert-id');
+            const card = document.getElementById(`alert-${alertId}`);
+            
+            // First mark as read
+            fetch(`/api/alerts/${alertId}/read`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Then delete the alert
+                    return fetch(`/api/alerts/${alertId}/delete`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                }
+            })
+            .then(response => {
+                if (response && response.ok) {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data && data.success) {
+                    // Remove the notification card with fade-out animation
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(100px)';
+                    
+                    setTimeout(() => {
+                        card.remove();
+                        
+                        // Check if there are no more notifications
+                        const remainingCards = document.querySelectorAll('.notification-card');
+                        if (remainingCards.length === 0) {
+                            // Show the empty state
+                            const container = document.querySelector('.col-lg-8');
+                            if (container) {
+                                container.innerHTML = `
+                                    <div class="empty-state">
+                                        <i class="fas fa-bell-slash"></i>
+                                        <h4>No Notifications</h4>
+                                        <p class="text-muted">You don't have any notifications at the moment.</p>
+                                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary mt-3">
+                                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                                        </a>
+                                    </div>
+                                `;
+                            }
+                        }
+                    }, 500);
+                }
+            })
+            .catch(error => console.error('Error processing alert:', error));
+        });
+    });
+    
+    // Mark all alerts as read and delete them
+    const markAllReadBtn = document.getElementById('markAllRead');
+    if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', function() {
+            const unreadButtons = document.querySelectorAll('.mark-read-btn');
+            const alertCards = document.querySelectorAll('.notification-card');
+            const alertIds = Array.from(unreadButtons).map(button => button.getAttribute('data-alert-id'));
+            
+            // Process each alert sequentially
+            const processAlerts = async () => {
+                for (const alertId of alertIds) {
+                    try {
+                        // Mark as read first
+                        const readResponse = await fetch(`/api/alerts/${alertId}/read`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        
+                        if (readResponse.ok) {
+                            // Then delete
+                            await fetch(`/api/alerts/${alertId}/delete`, {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Error processing alert ${alertId}:`, error);
+                    }
+                }
+                
+                // After all alerts are processed, update UI
+                alertCards.forEach((card, index) => {
+                    // Stagger the removal for a nice effect
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.5s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateX(100px)';
+                        
+                        setTimeout(() => {
+                            card.remove();
+                            
+                            // If this was the last card, show empty state
+                            if (index === alertCards.length - 1) {
+                                const container = document.querySelector('.col-lg-8');
+                                if (container) {
+                                    container.innerHTML = `
+                                        <div class="empty-state">
+                                            <i class="fas fa-bell-slash"></i>
+                                            <h4>No Notifications</h4>
+                                            <p class="text-muted">You don't have any notifications at the moment.</p>
+                                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary mt-3">
+                                                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                                            </a>
+                                        </div>
+                                    `;
+                                }
+                            }
+                        }, 500);
+                    }, index * 100); // Stagger timing
+                });
+            };
+            
+            processAlerts();
+        });
+    }
+    
+    // Function to update unread count in the document title
+    function updateUnreadCount(change) {
+        // This is a utility function that could be used if you want to 
+        // show unread counts in the page title or elsewhere in the UI
+        const countElement = document.querySelector('.unread-count');
+        if (countElement) {
+            const currentCount = parseInt(countElement.textContent);
+            const newCount = Math.max(0, currentCount + change);
+            countElement.textContent = newCount;
+            
+            if (newCount === 0) {
+                countElement.style.display = 'none';
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

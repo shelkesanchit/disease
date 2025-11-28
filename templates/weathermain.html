@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grape Disease Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='weatherstyle.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Header and Footer styles from Sasyavardhana */
+        :root {
+            --primary: #2ecc71;
+            --secondary: #27ae60;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --accent: #f39c12;
+        }
+        
+        header.main-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-login {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-left: 10px;
+        }
+        
+        .btn-login:hover {
+            background-color: #229954;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Main content adjustment for fixed header */
+        .main-content {
+            margin-top: 80px;
+            padding-top: 20px;
+        }
+        
+        /* Footer styles */
+        .main-footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 40px 0 20px;
+            text-align: center;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+            text-align: left;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .footer-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        /* Translation Container Styles */
+        #translate-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        #translate-button {
+            padding: 10px;
+            background-color: #2d457e;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #translate-dropdown {
+            display: none;
+            max-height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            width: 250px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header from Sasyavardhana -->
+    <header class="main-header">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🌱</span> Sasyavardhana
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#demo">Try Demo</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#" class="btn btn-login" id="logout-btn" onclick="window.location.href='/'">Log out</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main content from Grape Disease Predictor -->
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1><i class="fas fa-leaf"></i> Grape Disease Predictor</h1>
+            </header>
+
+            <section class="location-section">
+                <h2>Select Your Location</h2>
+                <div class="location-methods">
+                    <div class="method">
+                        <button id="geolocate-btn" class="btn"><i class="fas fa-map-marker-alt"></i> Use My Location</button>
+                        <div id="coordinates" class="coordinates hidden">
+                            <span id="lat-lon"></span>
+                            <button id="use-coordinates" class="small-btn">Use These Coordinates</button>
+                        </div>
+                    </div>
+                    <div class="method">
+                        <div class="input-group">
+                            <input type="text" id="city-input" placeholder="Enter city name">
+                            <button id="search-city-btn" class="btn"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="weather-section" class="weather-section hidden">
+                <h2>Current Weather Conditions</h2>
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div class="location">
+                            <h3 id="location-name">Loading...</h3>
+                            <span id="date-time"></span>
+                        </div>
+                        <div class="weather-icon">
+                            <img id="weather-icon-img" src="/placeholder.svg" alt="Weather icon">
+                        </div>
+                    </div>
+                    <div class="weather-data">
+                        <div class="data-item">
+                            <i class="fas fa-temperature-high"></i>
+                            <span>Temperature</span>
+                            <strong id="temperature">--°C</strong>
+                        </div>
+                        <div class="data-item">
+                            <i class="fas fa-tint"></i>
+                            <span>Humidity</span>
+                            <strong id="humidity">--%</strong>
+                        </div>
+                        <div class="data-item">
+                            <i class="fas fa-wind"></i>
+                            <span>Wind Speed</span>
+                            <strong id="wind-speed">-- m/s</strong>
+                        </div>
+                        <div class="data-item">
+                            <i class="fas fa-cloud-rain"></i>
+                            <span>Precipitation</span>
+                            <strong id="precipitation">-- mm</strong>
+                        </div>
+                    </div>
+                    <div id="farming-recommendations" class="recommendations">
+                        <h4>Farming Recommendations</h4>
+                        <ul id="farming-recommendations-list">
+                            <li>Loading recommendations...</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="predict-disease-btn" class="btn primary"><i class="fas fa-search-plus"></i> Predict Disease Risk</button>
+                </div>
+            </section>
+
+            <section id="prediction-section" class="prediction-section hidden">
+                <h2>Disease Prediction Results</h2>
+                <div class="prediction-card">
+                    <div class="prediction-header">
+                        <div id="prediction-result-status" class="status-indicator">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3 id="predicted-disease">Analyzing...</h3>
+                    </div>
+                    <div class="prediction-details">
+                        <div class="risk-meter">
+                            <div class="risk-label">Risk Level</div>
+                            <div class="meter">
+                                <div id="risk-level" class="level"></div>
+                            </div>
+                            <div id="confidence-percentage">--%</div>
+                        </div>
+                    </div>
+                    <div id="disease-recommendations" class="recommendations">
+                        <h4>Treatment Recommendations</h4>
+                        <ul id="disease-recommendations-list">
+                            <li>Loading recommendations...</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="new-prediction-btn" class="btn"><i class="fas fa-redo"></i> New Prediction</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Footer from Sasyavardhana -->
+    <footer class="main-footer" id="contact">
+        <div class="footer-grid">
+            <div class="footer-section">
+                <h3>About Sasyavardhana</h3>
+                <p>We're revolutionizing agriculture with AI-powered solutions that help farmers increase yield, reduce costs, and implement sustainable practices.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#demo">Demo</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <ul class="footer-links">
+                    <li>Email: <a href="mailto:info@sasyavardhana.com">info@sasyavardhana.com</a></li>
+                    <li>Phone: +91 98765 43210</li>
+                    <li>Address: Sasyavardhana Park, Nashik</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <p>Follow us on social media for updates and farming tips.</p>
+                <div class="social-links">
+                    <a href="#" class="social-icon">f</a>
+                    <a href="#" class="social-icon">t</a>
+                    <a href="#" class="social-icon">in</a>
+                    <a href="#" class="social-icon">ig</a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; <span id="current-year"></span> Sasyavardhana. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Loading overlay and error modal -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p id="loading-text">Loading...</p>
+    </div>
+
+    <div id="error-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3><i class="fas fa-exclamation-triangle"></i> Error</h3>
+            <p id="error-message"></p>
+            <button id="error-ok-btn" class="btn">OK</button>
+        </div>
+    </div>
+
+    <!-- Translation Container -->
+    <div id="translate-container">
+        <button id="translate-button">
+            🌐 Translate
+        </button>
+        <div id="translate-dropdown">
+            <div id="google_translate_element"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='weatherscript.js') }}"></script>
+    <script>
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // Translation Script
+        function loadGoogleTranslateScript() {
+            const script = document.createElement("script");
+            script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            script.type = "text/javascript";
+            document.body.appendChild(script);
+        }
+
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: "en", // Default page language
+                    includedLanguages: `
+                        as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,en
+                    `,
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                },
+                "google_translate_element"
+            );
+        }
+
+        // Toggle Translate Dropdown
+        document.getElementById("translate-button").addEventListener("click", function () {
+            const dropdown = document.getElementById("translate-dropdown");
+            dropdown.style.display = 
+                dropdown.style.display === "none" || dropdown.style.display === "" 
+                    ? "block" 
+                    : "none";
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const container = document.getElementById("translate-container");
+            const dropdown = document.getElementById("translate-dropdown");
+            
+            if (!container.contains(event.target) && dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            }
+        });
+
+        // Load the Translate Script
+        loadGoogleTranslateScript();
+
+        // Existing DOMContentLoaded code
+        document.addEventListener('DOMContentLoaded', function() {
+            // Your existing JavaScript code
+        });
+    </script>
+</body>
+</html>

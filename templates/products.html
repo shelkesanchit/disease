@@ -1,0 +1,202 @@
+{% extends 'base1.html' %}
+
+{% block title %}Products - Farmer's Market{% endblock %}
+
+{% block content %}
+<div class="container products-page">
+    <h1>All Products</h1>
+    
+    <div class="products-layout">
+        <aside class="product-filters">
+            <div class="filter-card">
+                <h2>Filters</h2>
+                
+                <form action="{{ url_for('products') }}" method="get" id="filter-form">
+                    <!-- Preserve search query if exists -->
+                    {% if request.args.get('search') %}
+                    <input type="hidden" name="search" value="{{ request.args.get('search') }}">
+                    {% endif %}
+                    
+                    <div class="filter-section">
+                        <h3>Price Range</h3>
+                        <div class="price-slider">
+                            <div class="price-inputs">
+                                <div>
+                                    <label for="min-price">Min</label>
+                                    <input type="number" id="min-price" name="min_price" value="{{ min_price }}" min="0" max="10000">
+                                </div>
+                                <div>
+                                    <label for="max-price">Max</label>
+                                    <input type="number" id="max-price" name="max_price" value="{{ max_price }}" min="0" max="10000">
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="price-range" min="0" max="10000" value="{{ max_price }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-section">
+                        <h3>Category</h3>
+                        <div class="checkbox-group">
+                            {% for category in categories %}
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="category-{{ category }}" name="category" value="{{ category }}"
+                                       {% if selected_category == category %}checked{% endif %}>
+                                <label for="category-{{ category }}">{{ category|title }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="filter-buttons">
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <button type="button" id="reset-filters" class="btn btn-outline">Reset</button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+        
+        <div class="product-list">
+            {% if products %}
+            <div class="product-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <a href="{{ url_for('product_detail', product_id=product._id) }}" class="product-image">
+                        <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}">
+                    </a>
+                    <div class="product-info">
+                        <a href="{{ url_for('product_detail', product_id=product._id) }}">
+                            <h3>{{ product.name }}</h3>
+                        </a>
+                        <div class="product-rating">
+                            {% if product.rating >= 4.5 %}
+                                {% set display_rating = 5 %}
+                            {% elif product.rating >= 3.5 %}
+                                {% set display_rating = 4 %}
+                            {% else %}
+                                {% set display_rating = 3 %}
+                            {% endif %}
+                            
+                            {% for i in range(5) %}
+                            <i class="fas fa-star {% if i < display_rating %}filled{% elif i < display_rating %}half-filled{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="product-description">{{ product.description|truncate(80) }}</p>
+                        <div class="product-footer">
+                            <span class="product-price">₹{{ "%.2f"|format(product.price) }}</span>
+                            <form class="add-to-cart-form" data-product-id="{{ product._id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-sm">
+                                    <i class="fas fa-shopping-cart"></i> Add
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-products">
+                <p>No products found matching your criteria.</p>
+                <a href="{{ url_for('products') }}" class="btn btn-primary">View All Products</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Translation Container -->
+    <div
+        id="translate-container"
+        style="position: fixed; bottom: 20px; right: 20px; z-index: 9999"
+    >
+        <button
+            id="translate-button"
+            style="
+                padding: 10px;
+                background-color: #2d457e;
+                color: white;
+                border: none;
+                cursor: pointer;
+                border-radius: 5px;
+            "
+        >
+            🌐 Translate
+        </button>
+        <!-- Scrollable Translate Dropdown -->
+        <div
+            id="translate-dropdown"
+            style="
+                display: none;
+                max-height: 300px;
+                overflow-y: scroll;
+                border: 1px solid #ccc;
+                background: #fff;
+                padding: 10px;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+                border-radius: 5px;
+                position: absolute;
+                right: 0;
+                top: 100%;
+                width: 250px;
+            "
+        >
+            <div id="google_translate_element"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/product-filters.js') }}"></script>
+<script>
+    // Toggle Translate Dropdown
+    document
+        .getElementById("translate-button")
+        .addEventListener("click", function () {
+            const dropdown = document.getElementById("translate-dropdown");
+            dropdown.style.display =
+                dropdown.style.display === "none" || dropdown.style.display === ""
+                    ? "block"
+                    : "none";
+        });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function(event) {
+        const dropdown = document.getElementById("translate-dropdown");
+        const translateButton = document.getElementById("translate-button");
+        
+        if (dropdown.style.display === "block" && 
+            !dropdown.contains(event.target) && 
+            event.target !== translateButton) {
+            dropdown.style.display = "none";
+        }
+    });
+
+    // Load Google Translate Script Dynamically
+    function loadGoogleTranslateScript() {
+        const script = document.createElement("script");
+        script.src =
+            "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        script.type = "text/javascript";
+        document.body.appendChild(script);
+    }
+
+    // Initialize Google Translate Element
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+            {
+                pageLanguage: "en", // Default page language
+                includedLanguages: `
+                    as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+                    en
+                `,
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            },
+            "google_translate_element"
+        );
+    }
+
+    // Load the Translate Script
+    loadGoogleTranslateScript();
+</script>
+{% endblock %}

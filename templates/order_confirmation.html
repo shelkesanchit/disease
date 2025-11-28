@@ -1,0 +1,94 @@
+{% extends 'base1.html' %}
+
+{% block title %}Order Confirmed - Farmer's Market{% endblock %}
+
+{% block content %}
+<div class="container order-confirmation-page">
+    <div class="confirmation-card">
+        <div class="confirmation-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h1>Order Confirmed!</h1>
+        <p>Thank you for your purchase. We've sent a confirmation email with your order details.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Home</a>
+    </div>
+</div>
+
+<!-- Translation Container -->
+<div
+    id="translate-container"
+    style="position: fixed; bottom: 20px; right: 20px; z-index: 9999"
+>
+    <button
+      id="translate-button"
+      style="
+        padding: 10px;
+        background-color: #2d457e;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+      "
+    >
+      🌐 Translate
+    </button>
+    <!-- Scrollable Translate Dropdown -->
+    <div
+      id="translate-dropdown"
+      style="
+        display: none;
+        max-height: 300px;
+        overflow-y: scroll;
+        border: 1px solid #ccc;
+        background: #fff;
+        padding: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+      "
+    >
+      <div id="google_translate_element"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle Translate Dropdown
+    document
+      .getElementById("translate-button")
+      .addEventListener("click", function () {
+        const dropdown = document.getElementById("translate-dropdown");
+        dropdown.style.display =
+          dropdown.style.display === "none" || dropdown.style.display === ""
+            ? "block"
+            : "none";
+    });
+
+    // Load Google Translate Script Dynamically
+    function loadGoogleTranslateScript() {
+      const script = document.createElement("script");
+      script.src =
+        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+      script.type = "text/javascript";
+      document.body.appendChild(script);
+    }
+
+    // Initialize Google Translate Element
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        {
+          pageLanguage: "en", // Default page language
+          includedLanguages: `
+            as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+            en
+          `,
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        },
+        "google_translate_element"
+      );
+    }
+
+    // Load the Translate Script
+    loadGoogleTranslateScript();
+</script>
+{% endblock %}

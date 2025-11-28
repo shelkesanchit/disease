@@ -1,0 +1,2068 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ farm.farm_name }} - Farm Details{% endblock %}
+
+{% block styles %}
+<style>
+    .task-item {
+        border-left: 4px solid #e0e0e0;
+        padding: 16px 20px;
+        margin-bottom: 18px;
+        transition: all 0.3s ease;
+        border-radius: 0 8px 8px 0;
+        background-color: #fafafa;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .task-item:hover {
+        border-left-color: #3f51b5;
+        background-color: #f9faff;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+    .task-item.completed {
+        border-left-color: #4caf50;
+        background-color: #f1f8e9;
+    }
+    .task-item h6 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2c3e50;
+    }
+    .task-item p {
+        color: #555;
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+    }
+    .task-date {
+        font-size: 0.9rem;
+        color: #555;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        margin-top: 8px;
+    }
+    .task-date i {
+        color: #27ae60;
+        margin-right: 5px;
+    }
+    /* Farm schedule section header styles */
+    .schedule-header h5 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #1e8449;
+    }
+    /* Enhanced schedule tabs styles */
+    .schedule-tabs {
+        border-bottom: 2px solid rgba(30, 132, 73, 0.2);
+    }
+    .schedule-tabs .nav-link {
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s ease;
+        margin-right: 8px;
+        color: #000000 !important;
+        font-weight: 700;
+        font-size: 1.1rem;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-bottom: none;
+        text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+    .schedule-tabs .nav-link.active {
+        background-color: #27ae60;
+        color: #ffffff !important;
+        font-weight: 700;
+        box-shadow: 0 -3px 10px rgba(39, 174, 96, 0.1);
+    }
+    .schedule-tabs .nav-link:hover:not(.active) {
+        background-color: rgba(39, 174, 96, 0.1);
+        border-color: rgba(0, 0, 0, 0.3);
+        color: #000000 !important;
+    }
+    /* Badge styles for categories */
+    .badge.bg-secondary {
+        background-color: #27ae60 !important;
+        color: white !important;
+        font-weight: 500;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        border-radius: 20px;
+        box-shadow: 0 2px 5px rgba(39, 174, 96, 0.3);
+        text-transform: capitalize;
+    }
+    
+    /* Task Categories - Improved visibility */
+    .category-water .badge.bg-secondary { background-color: #2196f3 !important; box-shadow: 0 2px 5px rgba(33, 150, 243, 0.3); }
+    .category-fertilize .badge.bg-secondary { background-color: #ff9800 !important; box-shadow: 0 2px 5px rgba(255, 152, 0, 0.3); }
+    .category-prune .badge.bg-secondary { background-color: #9c27b0 !important; box-shadow: 0 2px 5px rgba(156, 39, 176, 0.3); }
+    .category-pest .badge.bg-secondary { background-color: #f44336 !important; box-shadow: 0 2px 5px rgba(244, 67, 54, 0.3); }
+    .category-harvest .badge.bg-secondary { background-color: #4caf50 !important; box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3); }
+    .category-planting .badge.bg-secondary { background-color: #795548 !important; box-shadow: 0 2px 5px rgba(121, 85, 72, 0.3); }
+    .category-soil .badge.bg-secondary { background-color: #8d6e63 !important; box-shadow: 0 2px 5px rgba(141, 110, 99, 0.3); }
+    .category-structure .badge.bg-secondary { background-color: #607d8b !important; box-shadow: 0 2px 5px rgba(96, 125, 139, 0.3); }
+    .category-training .badge.bg-secondary { background-color: #ff5722 !important; box-shadow: 0 2px 5px rgba(255, 87, 34, 0.3); }
+    .category-monitor .badge.bg-secondary { background-color: #00bcd4 !important; box-shadow: 0 2px 5px rgba(0, 188, 212, 0.3); }
+    
+    /* Task Categories - Border colors remain the same */
+    .category-water { border-left-color: #2196f3; }
+    .category-fertilize { border-left-color: #ff9800; }
+    .category-prune { border-left-color: #9c27b0; }
+    .category-pest { border-left-color: #f44336; }
+    .category-harvest { border-left-color: #4caf50; }
+    .category-planting { border-left-color: #795548; }
+    .category-soil { border-left-color: #8d6e63; }
+    .category-structure { border-left-color: #607d8b; }
+    .category-training { border-left-color: #ff5722; }
+    .category-monitor { border-left-color: #00bcd4; }
+    
+    /* Improved form check (checkboxes) */
+    .form-check-input.task-checkbox {
+        width: 22px;
+        height: 22px;
+        margin-top: 0.25rem;
+        cursor: pointer;
+    }
+    .form-check-input.task-checkbox:checked {
+        background-color: #27ae60;
+        border-color: #27ae60;
+    }
+    
+    .calendar-container {
+        padding: 15px;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+    }
+    .farm-layout-container {
+        position: relative;
+        margin: 20px 0;
+    }
+    .farm-grid {
+        background-color: #e8f5e9;
+        border: 1px solid #81c784;
+        border-radius: 4px;
+        position: relative;
+        transition: all 0.3s ease;
+        height: 300px;
+        overflow: hidden;
+    }
+    .plant-dot {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background-color: #2e7d32;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.2s ease;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+    }
+    .plant-dot:hover {
+        width: 16px;
+        height: 16px;
+        background-color: #1b5e20;
+        box-shadow: 0 0 8px rgba(46, 125, 50, 0.7);
+    }
+    .plant-dot.has-note {
+        background-color: #d32f2f;
+        border-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 0 5px rgba(211, 47, 47, 0.5);
+    }
+    .plant-dot.has-note:hover {
+        background-color: #b71c1c;
+        box-shadow: 0 0 8px rgba(211, 47, 47, 0.7);
+    }
+    .plant-note {
+        display: none;
+        position: absolute;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 10px;
+        min-width: 200px;
+        max-width: 250px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 20;
+    }
+    .fullscreen-layout {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.98);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    .fullscreen-layout .farm-grid {
+        flex: 1;
+        height: calc(100vh - 250px) !important;
+        margin-bottom: 20px;
+        width: 100%;
+        background-color: #e8f5e9;
+        border: 2px solid #81c784;
+        position: relative;
+        overflow: auto;
+        padding: 10px;
+        border-radius: 8px;
+    }
+    .fullscreen-layout .plant-dot {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        z-index: 50;
+    }
+    .fullscreen-layout .plant-dot:hover {
+        width: 24px;
+        height: 24px;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    .fullscreen-layout .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #333;
+        z-index: 10001;
+    }
+    .fullscreen-layout .close-btn:hover {
+        color: #d32f2f;
+    }
+    .fullscreen-layout .action-buttons {
+        margin-bottom: 15px;
+    }
+    .note-editor {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 700px;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        padding: 20px;
+        max-height: calc(100vh - 450px);
+        overflow-y: auto;
+    }
+    .plant-note h6 {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+        margin-bottom: 8px;
+        color: #d32f2f;
+    }
+    
+    /* Debug grid (can be removed in production) */
+    .farm-grid::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        background-size: 10% 10%;
+        pointer-events: none;
+    }
+    
+    /* Container for the plants to ensure proper scaling */
+    .plant-container {
+        position: absolute;
+        width: 100%;
+        height: 3000px;
+        top: 0;
+        left: 0;
+    }
+    
+    /* Styles for the scrollbar in fullscreen mode */
+    .fullscreen-layout .farm-grid::-webkit-scrollbar {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .fullscreen-layout .farm-grid::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 5px;
+    }
+    
+    .fullscreen-layout .farm-grid::-webkit-scrollbar-thumb {
+        background: #88c399;
+        border-radius: 5px;
+    }
+    
+    .fullscreen-layout .farm-grid::-webkit-scrollbar-thumb:hover {
+        background: #70a583;
+    }
+    
+    /* Ensure notes are visible in the scrollable area */
+    .fullscreen-layout .plant-note {
+        z-index: 60;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Pulse animation for guidance */
+    @keyframes pulse {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 0.7;
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .pulse-animation {
+        animation: pulse 1s infinite;
+    }
+    
+    /* Highlight animation for plants with notes */
+    @keyframes highlight-pulse {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            box-shadow: 0 0 5px rgba(211, 47, 47, 0.5);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.25);
+            box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+            box-shadow: 0 0 5px rgba(211, 47, 47, 0.5);
+        }
+    }
+    
+    .plant-dot.pulse-highlight {
+        animation: highlight-pulse 0.8s ease-in-out;
+        animation-iteration-count: 3;
+    }
+    
+    /* Fixed note editor position */
+    .note-editor {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 700px;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        padding: 20px;
+        max-height: calc(100vh - 450px);
+        overflow-y: auto;
+    }
+    
+    /* Button highlighting for better visibility */
+    #inlineSaveNoteBtn {
+        background-color: #4caf50;
+        border-color: #4caf50;
+        font-weight: 500;
+    }
+    
+    #inlineSaveNoteBtn:hover {
+        background-color: #3e8e41;
+        border-color: #3e8e41;
+    }
+    
+    .fullscreen-layout .plant-dot.selected-plant {
+        width: 28px !important;
+        height: 28px !important;
+        transform: translate(-50%, -50%) scale(1.1) !important;
+    }
+    
+    .plant-note {
+        display: none;
+        position: absolute;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 10px;
+        min-width: 200px;
+        max-width: 250px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 20;
+    }
+    
+    /* Professional Schedule Card with Scrolling */
+    .scrollable-tasks {
+        max-height: 350px;
+        overflow-y: auto;
+        padding-right: 10px;
+        scrollbar-width: thin;
+    }
+    .scrollable-tasks::-webkit-scrollbar {
+        width: 6px;
+    }
+    .scrollable-tasks::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .scrollable-tasks::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+    }
+    .scrollable-tasks::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+    
+    /* Plant styles that were removed */
+    .plant-dot {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background-color: #2e7d32;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.2s ease;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+    }
+    
+    .fullscreen-layout .plant-dot {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        z-index: 50;
+    }
+    
+    /* Styles for selected plant */
+    .plant-dot.selected-plant {
+        width: 18px !important;
+        height: 18px !important;
+        background-color: #1a237e !important;
+        border: 3px solid #fff !important;
+        box-shadow: 0 0 10px rgba(26, 35, 126, 0.8) !important;
+        z-index: 60 !important;
+    }
+    
+    /* Schedule card styles */
+    .schedule-card {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .schedule-card:hover {
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    }
+    .schedule-card .card-header {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 12px 12px 0 0;
+    }
+    
+    /* Consultant Comments Section Styles */
+    .consultant-comments {
+        margin-top: 30px;
+    }
+    .comment-card {
+        background-color: #f8f9fa;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 0 8px 8px 0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    .comment-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background-color: #f0f7f1;
+    }
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    .consultant-name {
+        font-weight: 600;
+        color: #28a745;
+    }
+    .comment-date {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .comment-content {
+        color: #343a40;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    .goog-te-banner-frame { display: none !important; }
+    body { top: 0 !important; }
+    #google_translate_element { display: inline-block; }
+    .goog-te-menu-value { display: none; }
+    .goog-te-menu-frame { width: 100% !important; }
+    .goog-te-menu2 { max-width: 100% !important; overflow-x: hidden !important; }
+    .goog-te-menu2-col-1 { width: 100% !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ farm.farm_name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <!-- Farm Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1>{{ farm.farm_name }}</h1>
+                            <p class="text-muted mb-0">{{ farm.grape_variety }} Grape Farm</p>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('farm_schedule', farm_id=farm._id) }}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-calendar-alt me-1"></i> Manage Schedule
+                            </a>
+                            <a href="/api/export-pdf/{{ farm._id }}" class="btn btn-primary me-2" id="exportPdfBtn">
+                                <i class="fas fa-file-pdf me-1"></i> Export PDF
+                            </a>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteFarmModal">
+                                <i class="fas fa-trash-alt me-1"></i> Delete Farm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Farm Details & Layout -->
+    <div class="row mb-4">
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Farm Details</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="text-muted">Dimensions</th>
+                                <td>{{ farm.length }}m × {{ farm.width }}m</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-muted">Total Area</th>
+                                <td>{{ (farm.length * farm.width)|round(2) }} sq.m</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-muted">Grape Variety</th>
+                                <td>{{ farm.grape_variety }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-muted">Plant Spacing</th>
+                                <td>{{ farm.plant_spacing.width }}m × {{ farm.plant_spacing.length }}m</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-muted">Created On</th>
+                                <td>{{ farm.created_at.strftime('%B %d, %Y') }}</td>
+                            </tr>
+                            {% if schedule %}
+                                <tr>
+                                    <th scope="row" class="text-muted">Planting Date</th>
+                                    <td>{{ schedule.planting_date.strftime('%B %d, %Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="text-muted">Harvest Period</th>
+                                    <td>{{ schedule.end_date.strftime('%B %Y') }}</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Layout Optimization</h5>
+                </div>
+                <div class="card-body">
+                    <div class="farm-layout-container">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">Farm Layout</h6>
+                            <button class="btn btn-sm btn-outline-primary" id="fullscreenBtn">
+                                <i class="fas fa-expand"></i> Full Screen
+                            </button>
+                        </div>
+                        <div class="farm-grid" id="farmGrid" style="width: 100%; height: 200px;"></div>
+                    </div>
+                    
+                    <div class="row text-center mt-3">
+                        <div class="col-6">
+                            <h5 class="mb-0 text-primary">{{ layout.max_capacity }}</h5>
+                            <small class="text-muted">Total Plants</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="mb-0 text-primary">{{ layout.max_plants_length }} × {{ layout.max_plants_width }}</h5>
+                            <small class="text-muted">Rows × Columns</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row text-center mt-3">
+                        <div class="col-6">
+                            <h5 class="mb-0 text-primary">{{ layout.utilization|round(1) }}%</h5>
+                            <small class="text-muted">Land Utilization</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="mb-0 text-primary">{{ layout.used_area|round(2) }} m²</h5>
+                            <small class="text-muted">Used Area</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0 schedule-card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center schedule-header">
+                    <h5 class="mb-0">Farming Schedule</h5>
+                    {% if schedule %}
+                        <a href="{{ url_for('farm_schedule', farm_id=farm._id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i> Update Schedule
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if schedule and schedule.tasks %}
+                        <ul class="nav nav-tabs mb-3 schedule-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">
+                                    <i class="fas fa-clock me-1"></i> Upcoming
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                                    <i class="fas fa-list me-1"></i> All Tasks
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">
+                                    <i class="fas fa-check-circle me-1"></i> Completed
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="myTabContent">
+                            <!-- Upcoming Tasks -->
+                            <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+                                <div class="scrollable-tasks">
+                                    {% set found_upcoming = false %}
+                                    {% for task in schedule.tasks %}
+                                        {% if task.status != 'completed' and task.due_date|string >= now.strftime('%Y-%m-%d') %}
+                                            {% set found_upcoming = true %}
+                                            <div class="task-item category-{{ task.category }}" data-task-id="{{ task.id }}">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1">{{ task.title }}</h6>
+                                                        <p class="mb-1">{{ task.description }}</p>
+                                                        <div class="task-date">
+                                                            <span class="me-2">
+                                                                <i class="fas fa-calendar-day"></i> 
+                                                                {{ task.start_date }} to {{ task.due_date }}
+                                                            </span>
+                                                            <span class="badge bg-secondary text-white">{{ task.category }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input task-checkbox" type="checkbox" value=""
+                                                              {% if task.status == 'completed' %}checked{% endif %}
+                                                              data-task-id="{{ task.id }}"
+                                                              data-schedule-id="{{ schedule._id }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if not found_upcoming %}
+                                        <div class="text-center py-4">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/6874/6874636.png" width="80" class="mb-3 opacity-50">
+                                            <h5>No Upcoming Tasks</h5>
+                                            <p class="text-muted">All upcoming tasks have been completed.</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- All Tasks -->
+                            <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
+                                <div class="scrollable-tasks">
+                                    {% for task in schedule.tasks %}
+                                        <div class="task-item category-{{ task.category }} {% if task.status == 'completed' %}completed{% endif %}" data-task-id="{{ task.id }}">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1">{{ task.title }}</h6>
+                                                    <p class="mb-1">{{ task.description }}</p>
+                                                    <div class="task-date">
+                                                        <span class="me-2">
+                                                            <i class="fas fa-calendar-day"></i> 
+                                                            {{ task.start_date }} to {{ task.due_date }}
+                                                        </span>
+                                                        <span class="badge bg-secondary text-white">{{ task.category }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input task-checkbox" type="checkbox" value=""
+                                                          {% if task.status == 'completed' %}checked{% endif %}
+                                                          data-task-id="{{ task.id }}"
+                                                          data-schedule-id="{{ schedule._id }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <!-- Completed Tasks -->
+                            <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                                <div class="scrollable-tasks">
+                                    {% set found_completed = false %}
+                                    {% for task in schedule.tasks %}
+                                        {% if task.status == 'completed' %}
+                                            {% set found_completed = true %}
+                                            <div class="task-item category-{{ task.category }} completed" data-task-id="{{ task.id }}">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1">{{ task.title }}</h6>
+                                                        <p class="mb-1">{{ task.description }}</p>
+                                                        <div class="task-date">
+                                                            <span class="me-2">
+                                                                <i class="fas fa-calendar-day"></i> 
+                                                                {{ task.start_date }} to {{ task.due_date }}
+                                                            </span>
+                                                            <span class="badge bg-secondary text-white">{{ task.category }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input task-checkbox" type="checkbox" value=""
+                                                              checked
+                                                              data-task-id="{{ task.id }}"
+                                                              data-schedule-id="{{ schedule._id }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if not found_completed %}
+                                        <div class="text-center py-4">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/6874/6874747.png" width="80" class="mb-3 opacity-50">
+                                            <h5>No Completed Tasks</h5>
+                                            <p class="text-muted">You haven't completed any tasks yet.</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <img src="https://cdn-icons-png.flaticon.com/512/6874/6874444.png" width="100" class="mb-3 opacity-50">
+                            <h5>No Schedule Set</h5>
+                            <p class="text-muted">Start by setting a planting date to generate a comprehensive farming schedule.</p>
+                            <a href="{{ url_for('farm_schedule', farm_id=farm._id) }}" class="btn btn-primary">
+                                <i class="fas fa-calendar-alt me-1"></i> Set Planting Date
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add a new row for variety recommendations card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-leaf me-2 text-success"></i>
+                            Variety Information & Climate Adaptation
+                        </h5>
+                        <button id="refreshRecommendationsBtn" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="recommendationsLoader" class="text-center py-4 d-none">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Fetching detailed information...</p>
+                    </div>
+                    <div id="recommendationsContent" class="py-2">
+                        <!-- Recommendation content will be loaded here -->
+                        <div class="text-center py-4">
+                            <i class="fas fa-seedling fa-3x text-success mb-3 opacity-50"></i>
+                            <h5>Grape Variety Insights</h5>
+                            <p class="text-muted">Click "Refresh" to get detailed information about {{ farm.grape_variety }} cultivation, climate adaptation, and preventive measures.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add the consultant comments section above the farm layout visualization for better visibility -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Consultant Comments</h5>
+                </div>
+                <div class="card-body">
+                    {% if comments %}
+                        {% for comment in comments %}
+                        <div class="comment-card">
+                            <div class="comment-header">
+                                <div class="consultant-name">
+                                    <i class="fas fa-user-md me-1"></i> {{ comment.consultant_name }}
+                                </div>
+                                <div class="comment-date">
+                                    {{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                {{ comment.content }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No consultant comments yet.
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.consultant_id %}
+                    <div class="mt-3">
+                        <p>
+                            <i class="fas fa-lightbulb me-1 text-warning"></i>
+                            You have assigned <strong>{{ consultant_name }}</strong> as your consultant. 
+                            They can provide professional advice about your farm.
+                        </p>
+                    </div>
+                    {% else %}
+                    <div class="mt-3">
+                        <p>
+                            <i class="fas fa-lightbulb me-1 text-warning"></i>
+                            Assign a consultant to get professional advice for your farm.
+                        </p>
+                        <a href="{{ url_for('select_consultant') }}" class="btn btn-outline-success">
+                            <i class="fas fa-user-plus me-1"></i> Select a Consultant
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Farm Confirmation Modal -->
+<div class="modal fade" id="deleteFarmModal" tabindex="-1" aria-labelledby="deleteFarmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteFarmModalLabel">Confirm Farm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Are you sure you want to delete <strong>{{ farm.farm_name }}</strong>?</p>
+                <p class="text-danger mb-0">This action cannot be undone. All farm data and schedules will be permanently deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('delete_farm_route', farm_id=farm._id) }}" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete Farm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Plant Note Modal -->
+<div class="modal fade" id="plantNoteModal" tabindex="-1" aria-labelledby="plantNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="plantNoteModalLabel">Plant Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="plantNoteForm">
+                    <input type="hidden" id="noteId">
+                    <input type="hidden" id="plantRow">
+                    <input type="hidden" id="plantCol">
+                    
+                    <div class="mb-3">
+                        <label for="noteTitle" class="form-label">Note Title</label>
+                        <input type="text" class="form-control" id="noteTitle" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="noteType" class="form-label">Note Type</label>
+                        <select class="form-select" id="noteType">
+                            <option value="observation">General Observation</option>
+                            <option value="disease">Disease</option>
+                            <option value="pest">Pest</option>
+                            <option value="growth">Growth</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="harvest">Harvest</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="noteContent" class="form-label">Note Content</label>
+                        <textarea class="form-control" id="noteContent" rows="4" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="deleteNoteBtn" class="btn btn-danger d-none">Delete</button>
+                <button type="button" id="saveNoteBtn" class="btn btn-primary">Save Note</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fullscreen Farm Layout -->
+<div id="fullscreenContainer" class="fullscreen-layout" style="display: none;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{{ farm.name }} - Fullscreen View</h2>
+        <button id="closeFullscreenBtn" class="btn btn-outline-secondary">
+            <i class="fas fa-times"></i> Close
+        </button>
+    </div>
+    
+    <div class="action-buttons d-flex gap-2 mb-3">
+        <button id="toggleAllNotesBtn" class="btn btn-outline-primary">
+            <i class="fas fa-sticky-note me-1"></i> Show All Notes
+        </button>
+        <button id="addNoteInFullscreenBtn" class="btn btn-outline-success">
+            <i class="fas fa-plus-circle me-1"></i> Add/Edit Note
+        </button>
+    </div>
+    
+    <div class="farm-dimensions mb-3">
+        <div class="row">
+            <div class="col-md-4">
+                <span class="badge bg-light text-dark p-2">
+                    <i class="fas fa-ruler-combined me-1"></i> 
+                    Dimensions: {{ farm.length }}m × {{ farm.width }}m
+                </span>
+            </div>
+            <div class="col-md-4">
+                <span class="badge bg-light text-dark p-2">
+                    <i class="fas fa-grip-horizontal me-1"></i>
+                    Spacing: {{ farm.plant_spacing.length }}m × {{ farm.plant_spacing.width }}m
+                </span>
+            </div>
+            <div class="col-md-4">
+                <span class="badge bg-light text-dark p-2">
+                    <i class="fas fa-seedling me-1"></i>
+                    Total Plants: {{ layout.max_plants_width }} rows × {{ layout.max_plants_length }} columns
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div id="fullscreenFarmGrid" class="farm-grid">
+        <!-- Plants will be dynamically added here -->
+    </div>
+    
+    <!-- Inline Note Editor -->
+    <div id="noteEditor" class="note-editor p-4 mt-3">
+        <h4 id="selectedPlantLabel" class="mb-3">Selected Plant</h4>
+        <form id="inlineNoteForm" class="mt-3">
+            <input type="hidden" id="inlineNoteId">
+            <input type="hidden" id="inlinePlantRow">
+            <input type="hidden" id="inlinePlantCol">
+            
+            <div class="mb-3">
+                <label for="inlineNoteTitle" class="form-label">Note Title</label>
+                <input type="text" class="form-control" id="inlineNoteTitle" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="inlineNoteType" class="form-label">Note Type</label>
+                <select class="form-select" id="inlineNoteType">
+                    <option value="observation">General Observation</option>
+                    <option value="disease">Disease</option>
+                    <option value="pest">Pest Problem</option>
+                    <option value="growth">Growth</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="harvest">Harvest</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="inlineNoteContent" class="form-label">Note Content</label>
+                <textarea class="form-control" id="inlineNoteContent" rows="4" required></textarea>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button type="button" id="inlineSaveNoteBtn" class="btn btn-primary">Save Note</button>
+                <button type="button" id="inlineDeleteNoteBtn" class="btn btn-danger">Delete Note</button>
+                <button type="button" id="cancelNoteBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
+    
+</div>
+<div id="translate-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999">
+    <button id="translate-button" style="padding: 10px; background-color: #2d457e; color: white; border: none; cursor: pointer; border-radius: 5px;">
+        🌐 Translate
+    </button>
+    <div id="translate-dropdown" style="display: none; max-height: 300px; overflow-y: scroll; border: 1px solid #ccc; background: #fff; padding: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); border-radius: 5px;">
+        <div id="google_translate_element"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    
+document.addEventListener('DOMContentLoaded', function() {
+    // Farm data - parse as string then convert to number to avoid linter errors
+    const farmId = "{{ farm._id }}";
+    const farmLength = Number("{{ farm.length }}");
+    const farmWidth = Number("{{ farm.width }}");
+    const plantWidthSpacing = Number("{{ farm.plant_spacing.width }}");
+    const plantLengthSpacing = Number("{{ farm.plant_spacing.length }}");
+    const maxPlantsWidth = Number("{{ layout.max_plants_width }}");
+    const maxPlantsLength = Number("{{ layout.max_plants_length }}");
+    
+    // Store plant notes in memory
+    let plantNotes = [];
+    let selectedPlant = null;
+    let showAllNotes = false;
+    
+    // Get DOM elements
+    const farmGrid = document.getElementById('farmGrid');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const fullscreenContainer = document.getElementById('fullscreenContainer');
+    const fullscreenFarmGrid = document.getElementById('fullscreenFarmGrid');
+    const closeFullscreenBtn = document.getElementById('closeFullscreenBtn');
+    const toggleAllNotesBtn = document.getElementById('toggleAllNotesBtn');
+    const addNoteInFullscreenBtn = document.getElementById('addNoteInFullscreenBtn');
+    const noteEditor = document.getElementById('noteEditor');
+    const selectedPlantLabel = document.getElementById('selectedPlantLabel');
+    const cancelNoteBtn = document.getElementById('cancelNoteBtn');
+    
+    // Plant note modal elements
+    const plantNoteModalEl = document.getElementById('plantNoteModal');
+    let plantNoteModal = null;
+    if (plantNoteModalEl) {
+        plantNoteModal = new bootstrap.Modal(plantNoteModalEl);
+    }
+    
+    const plantNoteForm = document.getElementById('plantNoteForm');
+    const noteIdInput = document.getElementById('noteId');
+    const plantRowInput = document.getElementById('plantRow');
+    const plantColInput = document.getElementById('plantCol');
+    const noteTitleInput = document.getElementById('noteTitle');
+    const noteTypeInput = document.getElementById('noteType');
+    const noteContentInput = document.getElementById('noteContent');
+    const saveNoteBtn = document.getElementById('saveNoteBtn');
+    const deleteNoteBtn = document.getElementById('deleteNoteBtn');
+    
+    // Inline form elements
+    const inlineNoteForm = document.getElementById('inlineNoteForm');
+    const inlineNoteIdInput = document.getElementById('inlineNoteId');
+    const inlinePlantRowInput = document.getElementById('inlinePlantRow');
+    const inlinePlantColInput = document.getElementById('inlinePlantCol');
+    const inlineNoteTitleInput = document.getElementById('inlineNoteTitle');
+    const inlineNoteTypeInput = document.getElementById('inlineNoteType');
+    const inlineNoteContentInput = document.getElementById('inlineNoteContent');
+    const inlineSaveNoteBtn = document.getElementById('inlineSaveNoteBtn');
+    const inlineDeleteNoteBtn = document.getElementById('inlineDeleteNoteBtn');
+    
+    // Load plant notes from the database
+    function loadPlantNotes() {
+        fetch(`/api/plant-notes/${farmId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    plantNotes = data.notes;
+                    updatePlantDots();
+                }
+            })
+            .catch(error => console.error('Error loading plant notes:', error));
+    }
+    
+    // Draw farm layout in normal view
+    function drawFarmLayout(container) {
+        // Clear container
+        container.innerHTML = '';
+        
+        // Create a container for all plants if in fullscreen mode
+        let plantsContainer = container;
+        if (container.id === 'fullscreenFarmGrid') {
+            plantsContainer = document.createElement('div');
+            plantsContainer.className = 'plant-container';
+            container.appendChild(plantsContainer);
+            
+            // Log message to confirm plant container creation
+            console.log("Created plant container for fullscreen mode with dimensions:", 
+                        farmWidth, "x", farmLength, "meters");
+            console.log("Plants grid:", maxPlantsWidth, "rows x", maxPlantsLength, "columns");
+        }
+        
+        // Get the farm dimensions
+        const farmWidthMeters = farmWidth;
+        const farmLengthMeters = farmLength;
+        const rowSpacingMeters = plantWidthSpacing;
+        const colSpacingMeters = plantLengthSpacing;
+        
+        // Draw layout - iterate over each row and column position
+        for (let row = 0; row < maxPlantsWidth; row++) {
+            for (let col = 0; col < maxPlantsLength; col++) {
+                const plantDot = document.createElement('div');
+                plantDot.className = 'plant-dot';
+                plantDot.dataset.row = row;
+                plantDot.dataset.col = col;
+                
+                // Calculate position in meters from the top-left corner
+                const xMeters = col * colSpacingMeters + colSpacingMeters/2;
+                const yMeters = row * rowSpacingMeters + rowSpacingMeters/2;
+                
+                // Convert to percentage of farm dimensions for positioning
+                const xPercent = (xMeters / farmLengthMeters) * 100;
+                const yPercent = (yMeters / farmWidthMeters) * 100;
+                
+                plantDot.style.left = `${xPercent}%`;
+                plantDot.style.top = `${yPercent}%`;
+                
+                // Add plant info to data attributes for debugging
+                plantDot.dataset.xMeters = xMeters.toFixed(2);
+                plantDot.dataset.yMeters = yMeters.toFixed(2);
+                
+                // Add additional information for easier identification
+                plantDot.title = `Plant at Row ${row+1}, Column ${col+1}`;
+                
+                // Add click event to open note modal
+                plantDot.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event bubbling
+                    const row = parseInt(this.dataset.row);
+                    const col = parseInt(this.dataset.col);
+                    handlePlantClick(row, col, this);
+                });
+                
+                plantsContainer.appendChild(plantDot);
+            }
+        }
+        
+        // Update plant dots to show which ones have notes
+        updatePlantDots();
+    }
+    
+    // Update plant dots to show which ones have notes
+    function updatePlantDots() {
+        // Remove all 'has-note' classes first
+        document.querySelectorAll('.plant-dot').forEach(dot => {
+            dot.classList.remove('has-note');
+            
+            // Remove existing tooltips
+            if (dot._tippy) {
+                dot._tippy.destroy();
+            }
+        });
+        
+        // Add 'has-note' class to plants with notes
+        plantNotes.forEach(note => {
+            const dots = document.querySelectorAll(`.plant-dot[data-row="${note.row}"][data-col="${note.col}"]`);
+            
+            dots.forEach(dot => {
+                dot.classList.add('has-note');
+                
+                // Create tooltip with note title and type
+                if (typeof tippy !== 'undefined') {
+                    const noteTypeDisplay = {
+                        'observation': 'Observation',
+                        'disease': 'Disease',
+                        'pest': 'Pest Problem',
+                        'growth': 'Growth',
+                        'maintenance': 'Maintenance',
+                        'harvest': 'Harvest'
+                    };
+                    
+                    const typeLabel = noteTypeDisplay[note.type] || note.type;
+                    
+                    tippy(dot, {
+                        content: `<strong>${note.title}</strong><br><span class="text-muted">${typeLabel}</span>`,
+                        placement: 'top',
+                        arrow: true,
+                        theme: 'light-border',
+                        allowHTML: true
+                    });
+                }
+            });
+        });
+        
+        // If showing all notes and in fullscreen, refresh notes display
+        if (showAllNotes && fullscreenContainer.style.display !== 'none') {
+            // Trigger the toggle notes button to refresh the display
+            toggleAllNotesBtn.click();
+            toggleAllNotesBtn.click();
+        }
+    }
+    
+    // Handle plant click in any view
+    function handlePlantClick(row, col, dotElement) {
+        console.log(`Plant clicked at row ${row}, col ${col}`);
+        
+        // Clear any previously selected plants
+        document.querySelectorAll('.plant-dot').forEach(dot => {
+            dot.classList.remove('selected-plant');
+        });
+        
+        // Select this plant
+        dotElement.classList.add('selected-plant');
+        
+        // Store selected plant info
+        selectedPlant = { row: row, col: col };
+        
+        // Check if there's an existing note for this plant
+        const existingNote = plantNotes.find(note => note.row === row && note.col === col);
+        console.log("Existing note:", existingNote);
+        
+        // Get the correct note editor based on context (modal for regular view, inline for fullscreen)
+        const isFullscreen = document.getElementById('fullscreenContainer').style.display === 'block';
+        console.log("Is fullscreen mode:", isFullscreen);
+        
+        if (isFullscreen) {
+            // In fullscreen, use the inline editor
+            if (noteEditor) {
+                // Clear previous note data
+                inlineNoteIdInput.value = existingNote ? existingNote._id : '';
+                inlinePlantRowInput.value = row;
+                inlinePlantColInput.value = col;
+                inlineNoteTitleInput.value = existingNote ? existingNote.title : '';
+                inlineNoteTypeInput.value = existingNote ? existingNote.type : 'observation';
+                inlineNoteContentInput.value = existingNote ? existingNote.content : '';
+                
+                // Show or hide delete button based on whether this is a new or existing note
+                if (inlineDeleteNoteBtn) {
+                    inlineDeleteNoteBtn.style.display = existingNote ? 'block' : 'none';
+                }
+                
+                // Show note editor
+                noteEditor.style.display = 'block';
+                
+                // Focus on title if it's empty
+                if (!inlineNoteTitleInput.value) {
+                    inlineNoteTitleInput.focus();
+                }
+                
+                // Clear existing notes display if shown
+                if (showAllNotes) {
+                    // Temporarily hide all notes for better focus
+                    document.querySelectorAll('.plant-note').forEach(note => {
+                        note.style.display = 'none';
+                    });
+                }
+            }
+        } else {
+            // In regular view, use the modal
+            if (plantNoteModal) {
+                // Set form values
+                noteIdInput.value = existingNote ? existingNote._id : '';
+                plantRowInput.value = row;
+                plantColInput.value = col;
+                noteTitleInput.value = existingNote ? existingNote.title : '';
+                noteTypeInput.value = existingNote ? existingNote.type : 'observation';
+                noteContentInput.value = existingNote ? existingNote.content : '';
+                
+                // Show or hide delete button
+                if (deleteNoteBtn) {
+                    deleteNoteBtn.style.display = existingNote ? 'block' : 'none';
+                }
+                
+                // Set modal title based on whether we're editing or creating
+                const modalTitle = document.querySelector('#plantNoteModal .modal-title');
+                if (modalTitle) {
+                    modalTitle.textContent = existingNote ? 'Edit Plant Note' : 'Add New Plant Note';
+                }
+                
+                // Show the modal
+                plantNoteModal.show();
+            }
+        }
+    }
+    
+    // Save note from inline form
+    if (inlineSaveNoteBtn) {
+        inlineSaveNoteBtn.addEventListener('click', function() {
+            console.log("Saving note from inline form");
+            
+            // Validate form
+            if (!inlineNoteTitleInput.value.trim()) {
+                alert("Please enter a note title.");
+                inlineNoteTitleInput.focus();
+                return;
+            }
+            
+            if (!inlineNoteContentInput.value.trim()) {
+                alert("Please enter note content.");
+                inlineNoteContentInput.focus();
+                return;
+            }
+            
+            // Create FormData object manually
+            const formData = new FormData();
+            
+            formData.append('noteId', inlineNoteIdInput.value);
+            formData.append('plantRow', inlinePlantRowInput.value);
+            formData.append('plantCol', inlinePlantColInput.value);
+            formData.append('noteTitle', inlineNoteTitleInput.value);
+            formData.append('noteType', inlineNoteTypeInput.value);
+            formData.append('noteContent', inlineNoteContentInput.value);
+            
+            console.log("Form data ready to submit", {
+                noteId: inlineNoteIdInput.value,
+                row: inlinePlantRowInput.value,
+                col: inlinePlantColInput.value,
+                title: inlineNoteTitleInput.value
+            });
+            
+            // Disable button to prevent multiple submissions
+            inlineSaveNoteBtn.disabled = true;
+            inlineSaveNoteBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+            
+            // Save the note
+            saveNote(formData);
+            
+            // Hide editor after a delay to allow save to complete
+            setTimeout(() => {
+                noteEditor.style.display = 'none';
+                inlineSaveNoteBtn.disabled = false;
+                inlineSaveNoteBtn.innerHTML = 'Save Note';
+                
+                // Show confirmation message
+                const confirmMsg = document.createElement('div');
+                confirmMsg.className = 'alert alert-success';
+                confirmMsg.style.position = 'fixed';
+                confirmMsg.style.bottom = '20px';
+                confirmMsg.style.right = '20px';
+                confirmMsg.style.zIndex = '10001';
+                confirmMsg.innerHTML = '<i class="fas fa-check-circle me-2"></i>Note saved successfully!';
+                document.body.appendChild(confirmMsg);
+                
+                // Remove confirmation after 3 seconds
+                setTimeout(() => {
+                    confirmMsg.remove();
+                }, 3000);
+            }, 800);
+        });
+    }
+    
+    // Save note function
+    function saveNote(formData) {
+        const noteId = formData.get('noteId');
+        const method = noteId ? 'PUT' : 'POST';
+        const url = noteId 
+            ? `/api/plant-notes/${farmId}/${noteId}` 
+            : `/api/plant-notes/${farmId}`;
+        
+        console.log(`Sending ${method} request to ${url}`);
+        
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                row: parseInt(formData.get('plantRow')),
+                col: parseInt(formData.get('plantCol')),
+                title: formData.get('noteTitle'),
+                type: formData.get('noteType'),
+                content: formData.get('noteContent'),
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Note saved successfully:", data.note);
+                
+                // Update or add the note in our local array
+                if (noteId) {
+                    const index = plantNotes.findIndex(note => note._id === noteId);
+                    if (index !== -1) {
+                        plantNotes[index] = data.note;
+                    }
+                } else {
+                    plantNotes.push(data.note);
+                }
+                
+                // Update the UI
+                updatePlantDots();
+            } else {
+                console.error("Error saving note:", data.error);
+                alert("Error saving note: " + (data.error || "Unknown error"));
+            }
+        })
+        .catch(error => {
+            console.error('Error saving note:', error);
+            alert("Error saving note. Please try again.");
+        });
+    }
+    
+    // Delete note function
+    function deleteNote(noteId) {
+        if (!noteId) return;
+        
+        console.log(`Deleting note ${noteId}`);
+        
+        fetch(`/api/plant-notes/${farmId}/${noteId}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Note deleted successfully");
+                
+                // Remove note from array
+                plantNotes = plantNotes.filter(note => note._id !== noteId);
+                
+                // Update UI
+                updatePlantDots();
+                
+                // Show confirmation message
+                const confirmMsg = document.createElement('div');
+                confirmMsg.className = 'alert alert-success';
+                confirmMsg.style.position = 'fixed';
+                confirmMsg.style.bottom = '20px';
+                confirmMsg.style.right = '20px';
+                confirmMsg.style.zIndex = '10001';
+                confirmMsg.innerHTML = '<i class="fas fa-check-circle me-2"></i>Note deleted successfully!';
+                document.body.appendChild(confirmMsg);
+                
+                // Remove confirmation after 3 seconds
+                setTimeout(() => {
+                    confirmMsg.remove();
+                }, 3000);
+            } else {
+                console.error("Error deleting note:", data.error);
+                alert("Error deleting note: " + (data.error || "Unknown error"));
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting note:', error);
+            alert("Error deleting note. Please try again.");
+        });
+    }
+    
+    // Toggle fullscreen mode
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', function() {
+            fullscreenContainer.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent body scrolling
+            
+            // Clear any existing content first
+            fullscreenFarmGrid.innerHTML = '';
+            
+            // Ensure the note editor is hidden initially
+            noteEditor.style.display = 'none';
+            
+            // Set initial state for toggle button
+            toggleAllNotesBtn.innerHTML = '<i class="fas fa-sticky-note me-1"></i> Show All Notes';
+            showAllNotes = false;
+            
+            // Draw the farm layout in fullscreen
+            drawFarmLayout(fullscreenFarmGrid);
+            
+            // Clean up any visible notes
+            document.querySelectorAll('.plant-note').forEach(note => {
+                note.remove();
+            });
+            
+            // Reset selected plant
+            selectedPlant = null;
+            
+            console.log("Entered fullscreen mode");
+        });
+    }
+    
+    // Close fullscreen
+    if (closeFullscreenBtn) {
+        closeFullscreenBtn.addEventListener('click', function() {
+            fullscreenContainer.style.display = 'none';
+            document.body.style.overflow = '';
+            noteEditor.style.display = 'none';
+        });
+    }
+    
+    // Toggle showing all notes
+    if (toggleAllNotesBtn) {
+        toggleAllNotesBtn.addEventListener('click', function() {
+            showAllNotes = !showAllNotes;
+            
+            if (showAllNotes) {
+                this.innerHTML = '<i class="fas fa-sticky-note me-1"></i> Hide Notes';
+                
+                // Remove any existing notes first
+                document.querySelectorAll('.plant-note').forEach(note => {
+                    note.remove();
+                });
+                
+                if (plantNotes.length === 0) {
+                    // Create a notification when there are no notes
+                    const emptyNotification = document.createElement('div');
+                    emptyNotification.className = 'alert alert-info plant-note-empty';
+                    emptyNotification.style.position = 'fixed';
+                    emptyNotification.style.top = '100px';
+                    emptyNotification.style.left = '50%';
+                    emptyNotification.style.transform = 'translateX(-50%)';
+                    emptyNotification.style.zIndex = '10000';
+                    emptyNotification.style.padding = '20px';
+                    emptyNotification.style.borderRadius = '8px';
+                    emptyNotification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                    emptyNotification.style.width = '400px';
+                    emptyNotification.style.textAlign = 'center';
+                    emptyNotification.innerHTML = `
+                        <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close"></button>
+                        <h5><i class="fas fa-info-circle me-2"></i>No Notes Found</h5>
+                        <p class="mb-0">Click on a plant and use the "Add/Edit Note" button to create your first note.</p>
+                    `;
+                    document.body.appendChild(emptyNotification);
+                    
+                    // Add click event to close button
+                    const closeBtn = emptyNotification.querySelector('.btn-close');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function() {
+                            emptyNotification.remove();
+                        });
+                    }
+                    
+                    // Auto-dismiss the notification after 8 seconds
+                    setTimeout(() => {
+                        emptyNotification.classList.add('fade');
+                        setTimeout(() => {
+                            if (document.body.contains(emptyNotification)) {
+                                emptyNotification.remove();
+                            }
+                        }, 500);
+                    }, 8000);
+                    
+                    return;
+                }
+                
+                // Create a container for the notes list
+                const notesContainer = document.createElement('div');
+                notesContainer.className = 'notes-list-container';
+                notesContainer.style.position = 'fixed';
+                notesContainer.style.top = '100px';
+                notesContainer.style.right = '20px';
+                notesContainer.style.width = '350px';
+                notesContainer.style.maxHeight = 'calc(100vh - 150px)';
+                notesContainer.style.overflowY = 'auto';
+                notesContainer.style.zIndex = '10000';
+                notesContainer.style.backgroundColor = 'white';
+                notesContainer.style.borderRadius = '8px';
+                notesContainer.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+                notesContainer.style.padding = '15px';
+                
+                // Add title to the container
+                const notesTitle = document.createElement('h5');
+                notesTitle.className = 'mb-3 border-bottom pb-2';
+                notesTitle.innerHTML = `<i class="fas fa-clipboard-list me-2"></i>All Notes (${plantNotes.length})`;
+                notesContainer.appendChild(notesTitle);
+                
+                // Create list group for notes
+                const notesList = document.createElement('div');
+                notesList.className = 'list-group';
+                
+                // Sort notes by creation date (newest first)
+                const sortedNotes = [...plantNotes].sort((a, b) => {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+                
+                // Add each note to the list
+                sortedNotes.forEach(note => {
+                    const noteItem = document.createElement('a');
+                    noteItem.className = 'list-group-item list-group-item-action';
+                    noteItem.style.marginBottom = '8px';
+                    noteItem.style.borderRadius = '6px';
+                    noteItem.style.border = '1px solid #dee2e6';
+                    
+                    // Add note type badge color
+                    const badgeColors = {
+                        'observation': 'bg-info',
+                        'disease': 'bg-danger',
+                        'pest': 'bg-warning',
+                        'growth': 'bg-success',
+                        'maintenance': 'bg-secondary',
+                        'harvest': 'bg-primary'
+                    };
+                    
+                    const badgeColor = badgeColors[note.type] || 'bg-secondary';
+                    
+                    // Set different background color based on type
+                    const bgColors = {
+                        'disease': 'rgba(255, 0, 0, 0.05)',
+                        'pest': 'rgba(255, 152, 0, 0.05)',
+                        'observation': 'rgba(33, 150, 243, 0.05)'
+                    };
+                    
+                    if (bgColors[note.type]) {
+                        noteItem.style.backgroundColor = bgColors[note.type];
+                    }
+                    
+                    // Create the note content
+                    const noteTypeDisplay = {
+                        'observation': 'Observation',
+                        'disease': 'Disease',
+                        'pest': 'Pest Problem',
+                        'growth': 'Growth',
+                        'maintenance': 'Maintenance',
+                        'harvest': 'Harvest'
+                    };
+                    
+                    const typeLabel = noteTypeDisplay[note.type] || note.type;
+                    const dateCreated = new Date(note.created_at).toLocaleDateString();
+                    
+                    noteItem.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-1">${note.title}</h6>
+                            <span class="badge ${badgeColor}">${typeLabel}</span>
+                        </div>
+                        <p class="mb-1 text-truncate">${note.content}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Plant: Row ${note.row+1}, Column ${note.col+1}</small>
+                            <small class="text-muted">${dateCreated}</small>
+                        </div>
+                    `;
+                    
+                    // Add click handler to select the plant and show the note
+                    noteItem.addEventListener('click', function() {
+                        // Find the plant dot
+                        const dot = document.querySelector(`.plant-dot[data-row="${note.row}"][data-col="${note.col}"]`);
+                        if (dot) {
+                            // Scroll to the plant
+                            dot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            
+                            // After scrolling, trigger the click
+                            setTimeout(() => {
+                                handlePlantClick(note.row, note.col, dot);
+                            }, 500);
+                        }
+                    });
+                    
+                    notesList.appendChild(noteItem);
+                });
+                
+                notesContainer.appendChild(notesList);
+                document.body.appendChild(notesContainer);
+                
+                // Also highlight plants with notes
+                document.querySelectorAll('.plant-dot.has-note').forEach(dot => {
+                    dot.classList.add('pulse-highlight');
+                    
+                    // Remove the highlight after a short delay
+                    setTimeout(() => {
+                        dot.classList.remove('pulse-highlight');
+                    }, 2000);
+                });
+                
+            } else {
+                this.innerHTML = '<i class="fas fa-sticky-note me-1"></i> Show All Notes';
+                
+                // Hide all note elements
+                document.querySelectorAll('.plant-note').forEach(note => {
+                    note.remove();
+                });
+                
+                // Remove the notes list container if it exists
+                const notesContainer = document.querySelector('.notes-list-container');
+                if (notesContainer) {
+                    notesContainer.remove();
+                }
+                
+                // Remove empty notification if it exists
+                const emptyNotification = document.querySelector('.plant-note-empty');
+                if (emptyNotification) {
+                    emptyNotification.remove();
+                }
+                
+                // Remove the highlight class from plants
+                document.querySelectorAll('.plant-dot').forEach(dot => {
+                    dot.classList.remove('pulse-highlight');
+                });
+            }
+        });
+    }
+    
+    // Add note in fullscreen button
+    if (addNoteInFullscreenBtn) {
+        addNoteInFullscreenBtn.addEventListener('click', function() {
+            if (selectedPlant) {
+                console.log("Opening note editor for selected plant:", selectedPlant);
+                noteEditor.style.display = 'block';
+                
+                // Find the selected plant dot and scroll to it
+                const selectedDot = document.querySelector(`.plant-dot[data-row="${selectedPlant.row}"][data-col="${selectedPlant.col}"]`);
+                if (selectedDot) {
+                    selectedDot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                console.log("No plant selected, prompting user to select a plant");
+                alert('Please select a plant first by clicking on it.');
+                
+                // Highlight some plants to guide the user
+                const plantContainer = document.querySelector('.plant-container');
+                if (plantContainer) {
+                    const plantDots = plantContainer.querySelectorAll('.plant-dot');
+                    // Only animate a few plants as a visual guide
+                    const dotsToAnimate = Math.min(plantDots.length, 10);
+                    for (let i = 0; i < dotsToAnimate; i++) {
+                        const randomDelay = i * 100;
+                        setTimeout(() => {
+                            plantDots[i].classList.add('pulse-animation');
+                            setTimeout(() => {
+                                plantDots[i].classList.remove('pulse-animation');
+                            }, 2000);
+                        }, randomDelay);
+                    }
+                }
+            }
+        });
+    }
+    
+    // Cancel note button
+    if (cancelNoteBtn) {
+        cancelNoteBtn.addEventListener('click', function() {
+            noteEditor.style.display = 'none';
+        });
+    }
+    
+    // Delete note from modal
+    if (deleteNoteBtn) {
+        deleteNoteBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this note?')) {
+                deleteNote(noteIdInput.value);
+                if (plantNoteModal) {
+                    plantNoteModal.hide();
+                }
+            }
+        });
+    }
+    
+    // Delete note from inline form
+    if (inlineDeleteNoteBtn) {
+        inlineDeleteNoteBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this note?')) {
+                deleteNote(inlineNoteIdInput.value);
+                noteEditor.style.display = 'none';
+            }
+        });
+    }
+    
+    // Initialize farm layout
+    if (farmGrid) {
+        drawFarmLayout(farmGrid);
+    }
+    
+    // Load plant notes
+    loadPlantNotes();
+    
+    // Task checkbox handling
+    const taskCheckboxes = document.querySelectorAll('.task-checkbox');
+    taskCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const taskId = this.getAttribute('data-task-id');
+            const scheduleId = this.getAttribute('data-schedule-id');
+            const status = this.checked ? 'completed' : 'pending';
+            
+            // Update task status via API
+            fetch(`/api/task/${scheduleId}/${taskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    const taskItem = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+                    if (status === 'completed') {
+                        taskItem.classList.add('completed');
+                    } else {
+                        taskItem.classList.remove('completed');
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating task status:', error));
+        });
+    });
+    
+    // PDF export
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Show loading status
+            exportPdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Generating PDF...';
+            exportPdfBtn.disabled = true;
+            
+            fetch(this.href)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Error generating PDF');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.download_url) {
+                        // Success - reset button
+                        exportPdfBtn.innerHTML = '<i class="fas fa-file-pdf me-1"></i> Export PDF';
+                        exportPdfBtn.disabled = false;
+                        
+                        // Create a toast notification
+                        const toastEl = document.createElement('div');
+                        toastEl.className = 'position-fixed bottom-0 end-0 p-3';
+                        toastEl.style.zIndex = '11';
+                        toastEl.innerHTML = `
+                            <div id="pdfToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header bg-success text-white">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <strong class="me-auto">Success</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div class="toast-body">
+                                    PDF generated successfully! Downloading now...
+                                </div>
+                            </div>
+                        `;
+                        document.body.appendChild(toastEl);
+                        
+                        // Show the toast
+                        const toast = new bootstrap.Toast(document.getElementById('pdfToast'));
+                        toast.show();
+                        
+                        // Redirect to download URL
+                        window.location.href = data.download_url;
+                    } else {
+                        // Reset button
+                        exportPdfBtn.innerHTML = '<i class="fas fa-file-pdf me-1"></i> Export PDF';
+                        exportPdfBtn.disabled = false;
+                        alert('PDF generated successfully but no download URL was returned.');
+                    }
+                })
+                .catch(error => {
+                    // Reset button
+                    exportPdfBtn.innerHTML = '<i class="fas fa-file-pdf me-1"></i> Export PDF';
+                    exportPdfBtn.disabled = false;
+                    
+                    console.error('Error generating PDF:', error);
+                    
+                    // Create an error alert
+                    const alertEl = document.createElement('div');
+                    alertEl.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                    alertEl.innerHTML = `
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Error generating PDF:</strong> ${error.message || 'Unknown error'}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    
+                    // Add the alert before the farm details section
+                    const farmDetailsSection = document.querySelector('.card-body');
+                    if (farmDetailsSection) {
+                        farmDetailsSection.prepend(alertEl);
+                    } else {
+                        // Fallback if section not found
+                        alert(`Error generating PDF: ${error.message || 'Unknown error'}`);
+                    }
+                });
+        });
+    }
+    
+    // Handle recommendations refresh
+    const refreshBtn = document.getElementById('refreshRecommendationsBtn');
+    const loaderEl = document.getElementById('recommendationsLoader');
+    const contentEl = document.getElementById('recommendationsContent');
+    
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            // Show loader, hide content
+            loaderEl.classList.remove('d-none');
+            contentEl.innerHTML = '';
+            
+            // Prepare data for API call
+            const data = {
+                grape_variety: "{{ farm.grape_variety }}",
+                location: "{{ user.location if user and user.location else 'your region' }}",
+                query: "future climate conditions and preventive measures"
+            };
+            
+            // Call the recommendations API
+            fetch('/api/recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loader
+                loaderEl.classList.add('d-none');
+                
+                if (data.recommendation) {
+                    // Format and display the recommendation
+                    const formattedRecommendation = formatRecommendation(data.recommendation);
+                    contentEl.innerHTML = formattedRecommendation;
+                } else {
+                    // Show error message
+                    contentEl.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Could not retrieve detailed information at this time. Please try again later.
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                // Hide loader and show error
+                loaderEl.classList.add('d-none');
+                contentEl.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Error fetching recommendations: ${error.message}
+                    </div>
+                `;
+            });
+        });
+    }
+});
+
+// Helper function to format recommendation text with sections
+function formatRecommendation(text) {
+    // Split by newlines and create formatted HTML
+    const paragraphs = text.split('\n').filter(p => p.trim() !== '');
+    
+    let html = '<div class="recommendation-content">';
+    
+    paragraphs.forEach(paragraph => {
+        // Check if paragraph is a heading (starts with #)
+        if (paragraph.startsWith('#')) {
+            const headingLevel = paragraph.match(/^#+/)[0].length;
+            const headingText = paragraph.replace(/^#+\s+/, '');
+            
+            // Create appropriate heading tag based on level
+            const hTag = `h${Math.min(headingLevel + 3, 6)}`;
+            const className = headingLevel === 1 ? 'mt-3 mb-2 text-success' : 'mt-3 mb-2';
+            
+            html += `<${hTag} class="${className}">${headingText}</${hTag}>`;
+        } 
+        // Check if paragraph is a list item
+        else if (paragraph.trim().startsWith('- ') || paragraph.trim().startsWith('* ')) {
+            const listItem = paragraph.trim().replace(/^-\s+|^\*\s+/, '');
+            
+            // If this is the first list item, start a new list
+            if (!html.includes('<ul class="mb-3">')) {
+                html += '<ul class="mb-3">';
+            }
+            
+            html += `<li>${listItem}</li>`;
+            
+            // Check if the next paragraph is not a list item to close the list
+            const nextIndex = paragraphs.indexOf(paragraph) + 1;
+            if (nextIndex >= paragraphs.length || 
+                (!paragraphs[nextIndex].trim().startsWith('- ') && 
+                 !paragraphs[nextIndex].trim().startsWith('* '))) {
+                html += '</ul>';
+            }
+        }
+        // Regular paragraph
+        else {
+            html += `<p class="mb-2">${paragraph}</p>`;
+        }
+    });
+    
+    html += '</div>';
+    return html;
+}
+ // Toggle Translate Dropdown
+ document.getElementById('translate-button').addEventListener('click', function() {
+        const dropdown = document.getElementById('translate-dropdown');
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Load Google Translate Script Dynamically
+    function loadGoogleTranslateScript() {
+        if (!document.querySelector('script[src*="translate.google.com"]')) {
+            const script = document.createElement('script');
+            script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+            script.type = 'text/javascript';
+            document.body.appendChild(script);
+        }
+    }
+
+    // Initialize Google Translate Element with proper language list
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+        
+        // Add event listener for language change
+        const select = document.querySelector('.goog-te-combo');
+        if (select) {
+            select.addEventListener('change', function() {
+                // Handle any necessary post-translation logic here
+                console.log('Language changed to:', this.value);
+            });
+        }
+    }
+
+    // Initial load of translation script
+    loadGoogleTranslateScript();
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const translateContainer = document.getElementById('translate-container');
+        if (!translateContainer.contains(event.target)) {
+            document.getElementById('translate-dropdown').style.display = 'none';
+        }
+    });
+</script>
+{% endblock %} 

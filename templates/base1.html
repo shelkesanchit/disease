@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Farmer's Market{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style1.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Header Styles */
+        .site-header {
+            background-color: #2ecc71; /* Dark background for header */
+            color: white; /* Default text color */
+        }
+
+        .site-header a {
+            color: white; /* Links color */
+        }
+
+        .header-actions .search-form input {
+            background-color: rgba(255, 255, 255, 0.1); /* Light background for search input */
+            color: white; /* Text color for search input */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Light border for search input */
+        }
+
+        .header-actions .search-form input::placeholder {
+            color: rgba(255, 255, 255, 0.7); /* Placeholder color */
+        }
+
+        .header-actions .search-form button {
+            color: white; /* Search icon color */
+        }
+
+        .header-actions .user-icon,
+        .header-actions .cart-icon {
+            color: white; /* Icons color */
+        }
+
+        .header-actions .cart-count {
+            background-color: #2ecc71; /* Cart count background */
+            color: white; /* Cart count text color */
+        }
+
+        .mobile-menu-toggle {
+            color: white; /* Mobile menu icon color */
+        }
+
+        .mobile-menu {
+            background-color: #2c3e50; /* Mobile menu background */
+            color: white; /* Mobile menu text color */
+        }
+
+        .mobile-menu a {
+            color: white; /* Mobile menu links color */
+        }
+
+        /* Footer Styles */
+        .site-footer {
+            background-color: #2c3e50; /* Dark background for footer */
+            color: white; /* Default text color */
+        }
+
+        .site-footer a {
+            color: white; /* Links color */
+        }
+
+        .social-links a {
+            background-color: rgba(255, 255, 255, 0.1); /* Light background for social icons */
+            color: white; /* Social icons color */
+        }
+
+        .contact-info i {
+            color: white; /* Contact icons color */
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1); /* Light border for footer bottom */
+        }
+
+        /* Translation Dropdown Styles */
+        #translate-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        #translate-button {
+            padding: 10px;
+            background-color: #2d457e;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #translate-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            max-height: 300px;
+            width: 250px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="{{ url_for('index') }}" class="logo">
+                    <span class="logo-secondary">🌱Sasyavardhana</span>
+                </a>
+                
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="{{ url_for('products') }}">All Products</a></li>
+                        <li><a href="{{ url_for('products', category='pesticides') }}">Pesticides</a></li>
+                        <li><a href="{{ url_for('products', category='seedlings') }}">Seedlings</a></li>
+                        <li><a href="{{ url_for('products', category='organic') }}">Organic</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="header-actions">
+                    <form action="{{ url_for('products') }}" method="get" class="search-form">
+                        <input type="search" name="search" placeholder="Search products...">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                    
+                    <a href="{{ url_for('cart') }}" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        {% if cart_count > 0 %}
+                        <span class="cart-count">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                    
+                    <button class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mobile-menu">
+                <form action="{{ url_for('products') }}" method="get" class="mobile-search">
+                    <input type="search" name="search" placeholder="Search products...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                
+                <nav class="mobile-nav">
+                    <ul>
+                        <li><a href="{{ url_for('products') }}">All Products</a></li>
+                        <li><a href="{{ url_for('products', category='pesticides') }}">Pesticides</a></li>
+                        <li><a href="{{ url_for('products', category='seedlings') }}">Seedlings</a></li>
+                        <li><a href="{{ url_for('products', category='organic') }}">Organic</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages container">
+            {% for message in messages %}
+            <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🌱Sasyavardhana</h3>
+                    <p>Quality agricultural supplies for sustainable and productive farming.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="{{ url_for('products') }}">Products</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Categories</h3>
+                    <ul>
+                        <li><a href="{{ url_for('products', category='pesticides') }}">Pesticides</a></li>
+                        <li><a href="{{ url_for('products', category='seedlings') }}">Seedlings</a></li>
+                        <li><a href="{{ url_for('products', category='organic') }}">Organic Products</a></li>
+                        <li><a href="{{ url_for('products', category='tools') }}">Farming Tools</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-envelope"></i> support@farmersmarket.com</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; {{ now.year }} Farmer's Market. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <div
+        id="translate-container"
+        aria-label="Translation Options"
+    >
+        <button
+          id="translate-button"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          🌐 Translate
+        </button>
+        <!-- Scrollable Translate Dropdown -->
+        <div
+          id="translate-dropdown"
+          role="menu"
+        >
+          <div id="google_translate_element"></div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Toggle Translate Dropdown
+        const translateButton = document.getElementById("translate-button");
+        const translateDropdown = document.getElementById("translate-dropdown");
+
+        translateButton.addEventListener("click", function () {
+            const isCurrentlyVisible = translateDropdown.style.display === "block";
+            translateDropdown.style.display = isCurrentlyVisible ? "none" : "block";
+            translateButton.setAttribute('aria-expanded', !isCurrentlyVisible);
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!translateButton.contains(event.target) && !translateDropdown.contains(event.target)) {
+                translateDropdown.style.display = "none";
+                translateButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Load Google Translate Script Dynamically
+        function loadGoogleTranslateScript() {
+            const script = document.createElement("script");
+            script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            script.type = "text/javascript";
+            document.body.appendChild(script);
+        }
+
+        // Initialize Google Translate Element
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: "en", // Default page language
+                    includedLanguages: `
+                        as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,en
+                    `,
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                },
+                "google_translate_element"
+            );
+        }
+
+        // Load the Translate Script
+        loadGoogleTranslateScript();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

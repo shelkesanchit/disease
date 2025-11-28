@@ -1,0 +1,255 @@
+{% extends 'base1.html' %}
+
+{% block title %}{{ product.name }} - Farmer's Market{% endblock %}
+
+{% block content %}
+<div class="container product-detail-page">
+    <div class="product-detail">
+        <div class="product-image">
+            <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}">
+        </div>
+        
+        <div class="product-info">
+            <h1>{{ product.name }}</h1>
+            
+            <div class="product-rating">
+                {% if product.rating >= 4.5 %}
+                    {% set display_rating = 5 %}
+                {% elif product.rating >= 3.5 %}
+                    {% set display_rating = 4 %}
+                {% else %}
+                    {% set display_rating = 3 %}
+                {% endif %}
+                
+                {% for i in range(5) %}
+                <i class="fas fa-star {% if i < display_rating %}filled{% elif i < display_rating %}half-filled{% endif %}"></i>
+                {% endfor %}
+                <span class="review-count">({{ product.review_count }} reviews)</span>
+            </div>
+            
+            <div class="product-price">₹{{ "%.2f"|format(product.price) }}</div>
+            
+            <div class="product-description">
+                <h2>Description</h2>
+                <p>{{ product.description }}</p>
+            </div>
+            
+            {% if product.stock > 0 %}
+            <div class="product-stock in-stock">
+                <p>In Stock ({{ product.stock }} available)</p>
+                
+                <div class="add-to-cart-section">
+                    <form class="add-to-cart-form" data-product-id="{{ product._id }}">
+                        <div class="quantity-selector">
+                            <button type="button" class="quantity-btn decrease">-</button>
+                            <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                            <button type="button" class="quantity-btn increase">+</button>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="product-stock out-of-stock">
+                <p>Out of Stock</p>
+            </div>
+            {% endif %}
+            
+            <div class="product-details">
+                <h2>Details</h2>
+                <ul>
+                    <li><span>Category:</span> {{ product.category|capitalize }}</li>
+                    {% if product.usage %}
+                    <li><span>Usage:</span> {{ product.usage }}</li>
+                    {% endif %}
+                    {% if product.certification %}
+                    <li><span>Certification:</span> {{ product.certification }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Product Reviews -->
+    <div class="product-reviews">
+        <h2>Customer Reviews</h2>
+        
+        <!-- Write a Review -->
+        <div class="write-review">
+            <h3>Write a Review</h3>
+            
+            <form id="add-review-form" data-product-id="{{ product._id }}">
+                <div class="rating-selector">
+                    <p>Your Rating</p>
+                    <div class="star-rating">
+                        {% for i in range(1, 6) %}
+                        <i class="fas fa-star" data-rating="{{ i }}"></i>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="rating" value="0">
+                </div>
+                
+                <div class="form-group">
+                    <textarea name="comment" placeholder="Share your experience with this product..." rows="4"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    Submit Review
+                </button>
+            </form>
+        </div>
+        
+        <!-- Reviews List -->
+        <div class="reviews-list" id="reviews-list">
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-rating">
+                            {% for i in range(5) %}
+                            <i class="fas fa-star {% if i < review.rating %}filled{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <div class="review-date">
+                            {{ review.created_at.strftime('%B %d, %Y') }}
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        {{ review.comment }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-reviews">
+                    <p>No reviews yet. Be the first to review this product!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Recommended Products -->
+    <div class="recommended-products">
+        <h2>You May Also Like</h2>
+        <div class="product-slider">
+            <button class="slider-arrow slider-prev"><i class="fas fa-chevron-left"></i></button>
+            <div class="product-slider-container">
+                {% for product in recommended_products %}
+                <div class="product-card">
+                    <a href="{{ url_for('product_detail', product_id=product._id) }}" class="product-image">
+                        <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}">
+                    </a>
+                    <div class="product-info">
+                        <a href="{{ url_for('product_detail', product_id=product._id) }}">
+                            <h3>{{ product.name }}</h3>
+                        </a>
+                        <div class="product-rating">
+                            {% if product.rating >= 4.7 %}
+                                {% set display_rating = 5 %}
+                            {% elif product.rating >= 3.8 %}
+                                {% set display_rating = 4 %}
+                            {% else %}
+                                {% set display_rating = 3 %}
+                            {% endif %}
+                            
+                            {% for i in range(5) %}
+                            <i class="fas fa-star {% if i < display_rating %}filled{% elif i < display_rating %}half-filled{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="product-description">{{ product.description|truncate(80) }}</p>
+                        <div class="product-footer">
+                            <span class="product-price">₹{{ "%.2f"|format(product.price) }}</span>
+                            <button class="btn btn-sm add-to-cart" data-product-id="{{ product._id }}">
+                                <i class="fas fa-shopping-cart"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="slider-arrow slider-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Translation Container -->
+    <div
+        id="translate-container"
+        style="position: fixed; bottom: 20px; right: 20px; z-index: 9999"
+    >
+        <button
+          id="translate-button"
+          style="
+            padding: 10px;
+            background-color: #2d457e;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+          "
+        >
+          🌐 Translate
+        </button>
+        <!-- Scrollable Translate Dropdown -->
+        <div
+          id="translate-dropdown"
+          style="
+            display: none;
+            max-height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+          "
+        >
+          <div id="google_translate_element"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/product-detail.js') }}"></script>
+<script src="{{ url_for('static', filename='js/product-slider.js') }}"></script>
+<script>
+    // Toggle Translate Dropdown
+    document
+      .getElementById("translate-button")
+      .addEventListener("click", function () {
+        const dropdown = document.getElementById("translate-dropdown");
+        dropdown.style.display =
+          dropdown.style.display === "none" || dropdown.style.display === ""
+            ? "block"
+            : "none";
+    });
+
+    // Load Google Translate Script Dynamically
+    function loadGoogleTranslateScript() {
+      const script = document.createElement("script");
+      script.src =
+        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+      script.type = "text/javascript";
+      document.body.appendChild(script);
+    }
+
+    // Initialize Google Translate Element
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        {
+          pageLanguage: "en", // Default page language
+          includedLanguages: `
+            as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+            en
+          `,
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        },
+        "google_translate_element"
+      );
+    }
+
+    // Load the Translate Script
+    loadGoogleTranslateScript();
+</script>
+{% endblock %}

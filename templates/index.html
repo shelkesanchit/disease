@@ -1,0 +1,203 @@
+{% extends 'base1.html' %}
+
+{% block title %}Farmer's Market - Agricultural Supplies{% endblock %}
+
+{% block content %}
+<!-- Translation Container -->
+<div
+  id="translate-container"
+  style="position: fixed; bottom: 20px; right: 20px; z-index: 9999"
+>
+  <button
+    id="translate-button"
+    style="
+      padding: 10px;
+      background-color: #2d457e;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    "
+  >
+    🌐 Translate
+  </button>
+  <!-- Scrollable Translate Dropdown -->
+  <div
+    id="translate-dropdown"
+    style="
+      display: none;
+      max-height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      background: #fff;
+      padding: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      width: 250px;
+    "
+  >
+    <div id="google_translate_element"></div>
+  </div>
+</div>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content container">
+        <h1>Quality Agricultural Supplies</h1>
+        <p>Everything you need for sustainable and productive farming</p>
+        <a href="{{ url_for('products') }}" class="btn btn-primary">Shop Now</a>
+    </div>
+</section>
+
+<!-- Product Categories -->
+<section class="product-categories container">
+    <h2>Shop By Category</h2>
+    <div class="category-grid">
+        <a href="{{ url_for('products', category='pesticides') }}" class="category-card">
+            <div class="category-image">
+                <img src="{{ url_for('static', filename='images/pesticides.jpg') }}" alt="Pesticides">
+            </div>
+            <h3>Pesticides</h3>
+        </a>
+        <a href="{{ url_for('products', category='seedlings') }}" class="category-card">
+            <div class="category-image">
+                <img src="{{ url_for('static', filename='images/seedling.jpg') }}" alt="Seedlings">
+            </div>
+            <h3>Seedlings</h3>
+        </a>
+        <a href="{{ url_for('products', category='organic') }}" class="category-card">
+            <div class="category-image">
+                <img src="{{ url_for('static', filename='images/organic.jpg') }}" alt="Organic Products">
+            </div>
+            <h3>Organic Products</h3>
+        </a>
+    </div>
+</section>
+
+<!-- Recommended Products -->
+<section class="recommended-products container">
+    <h2>Recommended For You</h2>
+    <div class="product-slider">
+        <button class="slider-arrow slider-prev"><i class="fas fa-chevron-left"></i></button>
+        <div class="product-slider-container">
+            {% for product in recommended_products %}
+            <div class="product-card">
+                <a href="{{ url_for('product_detail', product_id=product._id) }}" class="product-image">
+                    <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}">
+                </a>
+                <div class="product-info">
+                    <a href="{{ url_for('product_detail', product_id=product._id) }}">
+                        <h3>{{ product.name }}</h3>
+                    </a>
+                    <div class="product-rating">
+                        {% for i in range(5) %}
+                        <i class="fas fa-star {% if i < product.rating|int %}filled{% elif i < product.rating %}half-filled{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="product-description">{{ product.description|truncate(80) }}</p>
+                    <div class="product-footer">
+                        <span class="product-price">₹{{ "%.2f"|format(product.price) }}</span>
+                        <button class="btn btn-sm add-to-cart" data-product-id="{{ product._id }}">
+                            <i class="fas fa-shopping-cart"></i> Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="slider-arrow slider-next"><i class="fas fa-chevron-right"></i></button>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="featured-products container">
+    <h2>Featured Products</h2>
+    <div class="product-grid">
+        {% for product in featured_products %}
+        <div class="product-card">
+            <a href="{{ url_for('product_detail', product_id=product._id) }}" class="product-image">
+                <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}">
+            </a>
+            <div class="product-info">
+                <a href="{{ url_for('product_detail', product_id=product._id) }}">
+                    <h3>{{ product.name }}</h3>
+                </a>
+                <div class="product-rating">
+                    {% for i in range(5) %}
+                    <i class="fas fa-star {% if i < product.rating|int %}filled{% elif i < product.rating %}half-filled{% endif %}"></i>
+                    {% endfor %}
+                </div>
+                <p class="product-description">{{ product.description|truncate(80) }}</p>
+                <div class="product-footer">
+                    <span class="product-price">₹{{ "%.2f"|format(product.price) }}</span>
+                    <form class="add-to-cart-form" data-product-id="{{ product._id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-sm">
+                            <i class="fas fa-shopping-cart"></i> Add
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/product-slider.js') }}"></script>
+
+<!-- Translation Scripts -->
+<script>
+  // Toggle Translate Dropdown
+  document
+    .getElementById("translate-button")
+    .addEventListener("click", function () {
+      const dropdown = document.getElementById("translate-dropdown");
+      dropdown.style.display =
+        dropdown.style.display === "none" || dropdown.style.display === ""
+          ? "block"
+          : "none";
+    });
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", function(event) {
+    const translateContainer = document.getElementById("translate-container");
+    const dropdown = document.getElementById("translate-dropdown");
+    
+    if (!translateContainer.contains(event.target)) {
+      dropdown.style.display = "none";
+    }
+  });
+
+  // Load Google Translate Script Dynamically
+  function loadGoogleTranslateScript() {
+    const script = document.createElement("script");
+    script.src =
+      "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    script.type = "text/javascript";
+    document.body.appendChild(script);
+  }
+
+  // Initialize Google Translate Element
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+      {
+        pageLanguage: "en", // Default page language
+        includedLanguages: `
+          as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+          en
+        `,
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+      },
+      "google_translate_element"
+    );
+  }
+
+  // Load the Translate Script
+  loadGoogleTranslateScript();
+</script>
+{% endblock %}

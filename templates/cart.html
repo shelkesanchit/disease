@@ -1,0 +1,95 @@
+{% extends 'base1.html' %}
+
+{% block title %}Shopping Cart - Farmer's Market{% endblock %}
+
+{% block content %}
+<div class="container cart-page">
+    <h1>Shopping Cart</h1>
+    
+    {% if cart_items %}
+    <div class="cart-layout">
+        <!-- Cart Items -->
+        <div class="cart-items">
+            <div class="cart-header">
+                <div class="cart-product">Product</div>
+                <div class="cart-price">Price</div>
+                <div class="cart-quantity">Quantity</div>
+                <div class="cart-total">Total</div>
+            </div>
+            
+            <div class="cart-body">
+                {% for item in cart_items %}
+                <div class="cart-item" data-product-id="{{ item._id }}">
+                    <div class="cart-product">
+                        <div class="cart-product-image">
+                            <img src="{{ url_for('static', filename='images/products/' + item.image) }}" alt="{{ item.name }}">
+                        </div>
+                        <div class="cart-product-info">
+                            <h3>{{ item.name }}</h3>
+                            <a href="{{ url_for('remove_from_cart', product_id=item._id) }}" class="remove-from-cart">
+                                <i class="fas fa-trash"></i> Remove
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-price">₹{{ "%.2f"|format(item.price) }}</div>
+                    
+                    <div class="cart-quantity">
+                        <form class="update-quantity-form" data-product-id="{{ item._id }}">
+                            <div class="quantity-selector">
+                                <button type="button" class="quantity-btn decrease">-</button>
+                                <input type="number" name="quantity" class="update-quantity" value="{{ item.quantity }}" min="1">
+                                <button type="button" class="quantity-btn increase">+</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="cart-total">₹{{ "%.2f"|format(item.item_total) }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            
+            <div class="summary-item">
+                <span>Subtotal</span>
+                <span>₹{{ "%.2f"|format(subtotal) }}</span>
+            </div>
+            
+            <div class="summary-item">
+                <span>Shipping</span>
+                <span>₹{{ "%.2f"|format(10 if subtotal > 0 else 0) }}</span>
+            </div>
+            
+            <div class="summary-total">
+                <span>Total</span>
+                <span>₹{{ "%.2f"|format(total) }}</span>
+            </div>
+            
+            <div class="coupon-code">
+                <input type="text" id="coupon-code" placeholder="Coupon code">
+                <button class="btn btn-outline">Apply</button>
+            </div>
+            
+            <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-block">Proceed to Checkout</a>
+            <a href="{{ url_for('products') }}" class="btn btn-outline btn-block">Continue Shopping</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-cart">
+        <div class="empty-cart-message">
+            <h2>Your Cart is Empty</h2>
+            <p>Looks like you haven't added any products to your cart yet.</p>
+            <a href="{{ url_for('products') }}" class="btn btn-primary">Continue Shopping</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+
+{% block title %}Select a Consultant - Grape Farm Planner{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Select Consultant</li>
+                </ol>
+            </nav>
+            <h1 class="display-5 mb-3">
+                <i class="fas fa-user-md text-success me-2"></i>
+                Select a Consultant
+            </h1>
+            <p class="lead">
+                Our consultants are grape farming experts who can provide valuable advice for your farms. 
+                Choose from the list below based on location, specialization, and experience.
+            </p>
+        </div>
+    </div>
+    
+    <!-- Filter Options -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Filter Consultants</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('select_consultant') }}" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="location" class="form-label">Location</label>
+                            <select class="form-select" id="location" name="location">
+                                <option value="">All Locations</option>
+                                {% for location in locations %}
+                                <option value="{{ location }}" {% if request.args.get('location') == location %}selected{% endif %}>{{ location }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="specialization" class="form-label">Specialization</label>
+                            <select class="form-select" id="specialization" name="specialization">
+                                <option value="">All Specializations</option>
+                                {% for specialization in specializations %}
+                                <option value="{{ specialization }}" {% if request.args.get('specialization') == specialization %}selected{% endif %}>{{ specialization }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="experience" class="form-label">Min. Experience (Years)</label>
+                            <input type="number" class="form-control" id="experience" name="experience" min="0" max="50" value="{{ request.args.get('experience', '') }}">
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-1"></i> Apply Filters
+                            </button>
+                            <a href="{{ url_for('select_consultant') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Consultants List -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% if consultants %}
+            {% for consultant in consultants %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title mb-0">{{ consultant.name }}</h5>
+                            {% if consultant._id == user.consultant_id|string %}
+                            <span class="badge bg-success">Current</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <div class="avatar bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="mb-1"><i class="fas fa-map-marker-alt text-secondary me-2"></i>{{ consultant.location }}</p>
+                                <p class="mb-0"><i class="fas fa-briefcase text-secondary me-2"></i>{{ consultant.experience }} years experience</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Specialization</h6>
+                            <p>{{ consultant.specialization }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Contact</h6>
+                            <p class="mb-1">
+                                <i class="fas fa-envelope me-2"></i>
+                                <a href="mailto:{{ consultant.email }}" class="text-decoration-none">{{ consultant.email }}</a>
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-phone me-2"></i>{{ consultant.phone }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white text-center py-3">
+                        {% if consultant._id == user.consultant_id|string %}
+                        <button class="btn btn-success disabled" disabled>Currently Selected</button>
+                        {% else %}
+                        <form method="POST" action="{{ url_for('assign_consultant', consultant_id=consultant._id) }}">
+                            <button type="submit" class="btn btn-outline-success">
+                                <i class="fas fa-check me-1"></i> Select This Consultant
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No consultants match your filter criteria. Please try different filters.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Translation Component -->
+<div
+    id="translate-container"
+    style="position: fixed; bottom: 20px; right: 20px; z-index: 9999"
+>
+    <button
+        id="translate-button"
+        style="
+        padding: 10px;
+        background-color: #2d457e;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        "
+    >
+        🌐 Translate
+    </button>
+    <!-- Scrollable Translate Dropdown -->
+    <div
+        id="translate-dropdown"
+        style="
+        display: none;
+        max-height: 300px;
+        overflow-y: scroll;
+        border: 1px solid #ccc;
+        background: #fff;
+        padding: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        "
+    >
+        <div id="google_translate_element"></div>
+    </div>
+</div>
+
+<!-- Translation Scripts -->
+<script>
+    // Track the current language
+    let currentLanguage = 'en';
+    
+    // Toggle Translate Dropdown
+    document
+        .getElementById("translate-button")
+        .addEventListener("click", function () {
+            const dropdown = document.getElementById("translate-dropdown");
+            dropdown.style.display =
+                dropdown.style.display === "none" || dropdown.style.display === ""
+                ? "block"
+                : "none";
+        });
+    
+    // Load Google Translate Script Dynamically
+    function loadGoogleTranslateScript() {
+        const script = document.createElement("script");
+        script.src =
+        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        script.type = "text/javascript";
+        document.body.appendChild(script);
+    }
+    
+    // Initialize Google Translate Element
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+            {
+                pageLanguage: "en", // Default page language
+                includedLanguages: `
+                    as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+                    en
+                `,
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false,
+                gaTrack: true,
+                gaId: 'UA-XXXXX-X', // Replace with your Google Analytics ID if needed
+            },
+            "google_translate_element"
+        );
+        
+        // Add event listener for language change
+        if (typeof google !== 'undefined' && google.translate) {
+            // Wait for the translate widget to load
+            setTimeout(function() {
+                const translateSelectElement = document.querySelector('.goog-te-combo');
+                if (translateSelectElement) {
+                    translateSelectElement.addEventListener('change', function() {
+                        currentLanguage = this.value;
+                        console.log('Language changed to: ' + currentLanguage);
+                        
+                        // Optional: Update any UI elements that need to reflect the current language
+                        updateUIForLanguage(currentLanguage);
+                        
+                        // Close dropdown after selection (optional)
+                        setTimeout(function() {
+                            document.getElementById("translate-dropdown").style.display = "none";
+                        }, 1000);
+                    });
+                }
+            }, 1000);
+        }
+    }
+    
+    // Function to update UI elements based on the selected language (if needed)
+    function updateUIForLanguage(lang) {
+        // You can add custom UI updates here based on the selected language
+        // For example, you might want to change certain elements or adjust the layout
+        
+        // Example: Update the translate button text based on language
+        const translateButton = document.getElementById('translate-button');
+        if (lang && lang !== 'en') {
+            translateButton.classList.add('active-translation');
+            translateButton.style.backgroundColor = '#1a8754'; // Change to green when active
+        } else {
+            translateButton.classList.remove('active-translation');
+            translateButton.style.backgroundColor = '#2d457e'; // Revert to original color
+        }
+    }
+    
+    // Function to get the current language
+    function getCurrentLanguage() {
+        return currentLanguage;
+    }
+    
+    // Ensure proper translation of dynamically loaded content
+    function translateDynamicContent() {
+        if (typeof google !== 'undefined' && google.translate && 
+            google.translate.TranslateElement && 
+            currentLanguage !== 'en') {
+            
+            // Force retranslation of the page
+            const translateElement = google.translate.TranslateElement.getInstance();
+            if (translateElement) {
+                translateElement.update();
+            }
+        }
+    }
+    
+    // Add event listener for dynamic content changes (if applicable)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Example for monitoring content changes (adjust based on your application)
+        const targetNode = document.querySelector('.container');
+        if (targetNode) {
+            const observer = new MutationObserver(function(mutations) {
+                translateDynamicContent();
+            });
+            
+            observer.observe(targetNode, { 
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+        }
+    });
+    
+    // Initialize translation functionality on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadGoogleTranslateScript();
+    });
+</script>
+{% endblock %}

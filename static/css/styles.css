@@ -1,0 +1,631 @@
+/* styles.css */
+:root {
+    --primary-color: #1e8449;
+    --secondary-color: #27ae60;
+    --accent-color: #f39c12;
+    --light-color: #f1f8e9;
+    --dark-color: #145a32;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --success-color: #2ecc71;
+    --section-bg: #f1f8e9;
+    --tertiary-color: #9b59b6;
+    --info-color: #3498db;
+    --border-radius: 0.25rem;
+    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--dark-color);
+    background-color: #f9f9f9;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+section {
+    background-color: white;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.form-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+    grid-column: 1 / -1;
+}
+
+button:hover {
+    background-color: #303f9f;
+}
+
+.results-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .results-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.summary-box {
+    background-color: var(--light-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.summary-box p {
+    margin-bottom: 10px;
+}
+
+.matrix-container {
+    background-color: var(--light-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.matrix-legend {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.plant-dot {
+    width: 15px;
+    height: 15px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.matrix-viewport {
+    overflow: auto;
+    max-height: 300px;
+    border: 1px solid #ddd;
+    background-color: white;
+    padding: 10px;
+}
+
+.plantation-matrix {
+    position: relative;
+}
+
+.plant {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.activity-container {
+    background-color: var(--light-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-top: 20px;
+}
+
+.date-display {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--secondary-color);
+}
+
+.activities-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .activities-box {
+        grid-template-columns: 1fr;
+    }
+}
+
+.current-activities, .upcoming-activities {
+    background-color: white;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    border-left: 5px solid var(--primary-color);
+}
+
+.upcoming-activities {
+    border-left-color: var(--warning-color);
+}
+
+.activities-box h3, .activities-box h4 {
+    margin-bottom: 10px;
+    color: var(--dark-color);
+}
+
+.activities-box ul {
+    list-style-position: inside;
+    padding-left: 5px;
+}
+
+.activities-box li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.yearly-timeline-section {
+    overflow: auto;
+}
+
+.timeline {
+    display: flex;
+    margin-top: 20px;
+    min-width: 800px;
+}
+
+.timeline-period {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+    border-radius: var(--border-radius);
+    margin: 0 5px;
+    color: white;
+}
+
+.timeline-period h3 {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.timeline-period p {
+    font-size: 0.8rem;
+}
+
+.land-preparation {
+    background-color: var(--primary-color);
+}
+
+.vine-growth {
+    background-color: var(--secondary-color);
+}
+
+.flowering {
+    background-color: var(--tertiary-color);
+}
+
+.berry-growth {
+    background-color: var(--info-color);
+}
+
+.harvesting {
+    background-color: var(--accent-color);
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 30px;
+    color: #777;
+}
+
+/* Highlight current phase in the timeline */
+.timeline-period.current {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+/* Navbar Customization */
+.navbar-dark.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Card Customizations */
+.card {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    border-top-left-radius: var(--border-radius) !important;
+    border-top-right-radius: var(--border-radius) !important;
+}
+
+/* Button Customizations */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-color);
+    border-color: var(--dark-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Feature Icons */
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    background-color: var(--light-color);
+    color: var(--primary-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.feature-icon:hover {
+    transform: translateY(-8px) rotate(8deg);
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Hero Section */
+.hero {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 80%, var(--accent-color) 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Footer Customization */
+.footer {
+    padding: 2rem 0;
+    background-color: var(--light-color);
+}
+
+.footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+/* Dashboard Styles */
+.weather-card {
+    background: linear-gradient(135deg, var(--dark-color) 0%, var(--primary-color) 100%);
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    transform: perspective(1000px);
+    transition: all 0.5s ease;
+}
+
+.weather-card:hover {
+    transform: perspective(1000px) rotateX(2deg) translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.seasonal-card {
+    background: linear-gradient(135deg, var(--tertiary-color) 0%, var(--info-color) 100%);
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    transform: perspective(1000px);
+    transition: all 0.5s ease;
+}
+
+.seasonal-card:hover {
+    transform: perspective(1000px) rotateX(2deg) translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.alert-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 0.7rem;
+}
+
+.farm-card {
+    transition: transform 0.3s ease;
+}
+
+.farm-card:hover {
+    transform: translateY(-5px);
+}
+
+.task-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* Task Item Styles */
+.task-item {
+    border-left: 3px solid #e0e0e0;
+    padding-left: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.task-item:hover {
+    border-left-color: var(--primary-color);
+}
+
+.task-item.completed {
+    border-left-color: var(--success-color);
+    background-color: #f1f8e9;
+}
+
+.task-date {
+    font-size: 0.8rem;
+    color: #757575;
+}
+
+/* Task Categories */
+.category-water { border-left-color: #2196f3; }
+.category-fertilize { border-left-color: #ff9800; }
+.category-prune { border-left-color: #9c27b0; }
+.category-pest { border-left-color: #f44336; }
+.category-harvest { border-left-color: #4caf50; }
+.category-planting { border-left-color: #795548; }
+.category-soil { border-left-color: #8d6e63; }
+.category-structure { border-left-color: #607d8b; }
+.category-training { border-left-color: #ff5722; }
+.category-monitor { border-left-color: #00bcd4; }
+
+/* Farm Layout Visualization */
+.farm-layout-container {
+    position: relative;
+    margin: 20px 0;
+}
+
+.farm-grid {
+    background-color: #e8f5e9;
+    border: 1px solid #81c784;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.farm-grid:hover {
+    box-shadow: 0 8px 20px rgba(46, 125, 50, 0.3);
+    transform: scale(1.02);
+}
+
+.plant-dot {
+    background-color: var(--primary-color);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.plant-dot:hover {
+    transform: scale(1.8);
+    background-color: var(--accent-color);
+}
+
+/* Login/Signup Forms */
+.auth-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Error Pages */
+.error-container {
+    text-align: center;
+    padding: 5rem 0;
+}
+
+.error-container h1 {
+    font-size: 6rem;
+    margin-bottom: 1rem;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .hero {
+        padding: 2rem 0;
+    }
+    
+    .feature-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .card-header h5 {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .task-item {
+        padding-left: 10px;
+    }
+    
+    .task-date {
+        font-size: 0.7rem;
+    }
+    
+    .plant-dot {
+        width: 4px;
+        height: 4px;
+    }
+}
+
+/* 3D Animation Container */
+.animation-container {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 12px;
+    margin: 20px 0;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.5s ease;
+}
+
+.animation-container:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: translateY(-10px);
+}
+
+.animation-container-dashboard {
+    height: 300px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    margin-bottom: 2rem;
+    transition: all 0.5s ease;
+}
+
+.animation-container-dashboard:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: translateY(-10px);
+}
+
+#animation-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* Timeline animations */
+.timeline-period {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 8px;
+    margin: 0 8px;
+}
+
+.timeline-period:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+}
+
+/* Timeline colors with enhanced theme */
+.land-preparation {
+    background-color: var(--primary-color);
+}
+
+.vine-growth {
+    background-color: var(--secondary-color);
+}
+
+.flowering {
+    background-color: var(--tertiary-color);
+}
+
+.berry-growth {
+    background-color: var(--info-color);
+}
+
+.harvesting {
+    background-color: var(--accent-color);
+}
+
+/* Add 3D hover effects to cards */
+.card {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    border: none;
+    border-radius: 12px;
+}
+
+.card:hover {
+    transform: translateY(-10px) perspective(1000px) rotateX(2deg);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}

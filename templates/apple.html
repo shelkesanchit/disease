@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Disease Prediction | Sasyavardhana</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #2ecc71;
+            --primary-dark: #27ae60;
+            --primary-light: #a8e4bc;
+            --primary-ultra-light: #eafaf1;
+            --secondary: #3498db;
+            --secondary-dark: #2980b9;
+            --accent: #e74c3c;
+            --accent-dark: #c0392b;
+            --dark: #2c3e50;
+            --medium: #7f8c8d;
+            --light: #ecf0f1;
+            --ultra-light: #f9f9f9;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.1);
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --border-radius-sm: 4px;
+            --border-radius: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 20px;
+            --transition: all 0.3s ease;
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--ultra-light);
+            color: var(--dark);
+            line-height: 1.6;
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 320px; /* Space for footer */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--medium);
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            position: relative;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 8px 15px;
+            border-radius: var(--border-radius-xl);
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--accent);
+            color: white;
+            padding: 10px 25px;
+            border-radius: var(--border-radius-xl);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-dark);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-login {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-login:hover {
+            background-color: var(--dark);
+        }
+        
+        .btn-icon {
+            font-size: 1rem;
+        }
+
+        /* Main Content Styles */
+        main {
+            padding: 40px 0;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+
+        .upload-container {
+            text-align: center;
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            padding: 35px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+
+        .upload-container:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+
+        .upload-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .file-input-container {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 30px;
+            background-color: var(--primary-ultra-light);
+            border: 2px dashed var(--primary);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-label:hover {
+            background-color: var(--primary-light);
+            transform: scale(1.02);
+        }
+
+        .file-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .file-text {
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .btn-action {
+            background-color: var(--primary-dark);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        .btn-action:hover {
+            background-color: var(--dark);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        #camera-feed {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            max-width: 600px;
+        }
+
+        #video {
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            border: 3px solid var(--primary-light);
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+        }
+
+        .camera-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 40px 0;
+            padding: 30px;
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading p {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--medium);
+        }
+
+        /* Results Section */
+        #result-container {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin: 40px auto;
+            border: 1px solid rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #result-container h2 {
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-light);
+            margin-bottom: 25px;
+        }
+
+        .result-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .image-container {
+            flex: 1;
+            min-width: 300px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            background-color: var(--ultra-light);
+            transition: var(--transition);
+        }
+
+        .image-container:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            display: block;
+        }
+
+        .results-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .result-item {
+            margin-bottom: 25px;
+            background-color: var(--ultra-light);
+            padding: 20px;
+            border-radius: var(--border-radius);
+        }
+
+        .result-item h3 {
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .diagnosis {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+            display: inline-block;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .healthy {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .blotch {
+            background-color: #ffe0b2;
+            color: #ef6c00;
+        }
+
+        .rotten {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        .scab {
+            background-color: #e1bee7;
+            color: #6a1b9a;
+        }
+
+        #confidence-bars {
+            margin-top: 15px;
+        }
+
+        .confidence-bar-container {
+            margin-bottom: 15px;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .disease-name {
+            font-weight: 500;
+        }
+        
+        .percentage {
+            font-weight: 600;
+        }
+
+        .confidence-bar {
+            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+        
+        .fill-healthy {
+            background: linear-gradient(90deg, #81c784, #2e7d32);
+        }
+        
+        .fill-blotch {
+            background: linear-gradient(90deg, #ffb74d, #ef6c00);
+        }
+        
+        .fill-rotten {
+            background: linear-gradient(90deg, #ef5350, #c62828);
+        }
+        
+        .fill-scab {
+            background: linear-gradient(90deg, #ba68c8, #6a1b9a);
+        }
+
+        .recommendations, .pesticides {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: var(--ultra-light);
+            border-radius: var(--border-radius);
+            border-left: 5px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .recommendations h3, .pesticides h3 {
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #recommendations-text, #pesticides-list {
+            color: var(--medium);
+            line-height: 1.7;
+        }
+        
+        #recommendations-text ul, #pesticides-list ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        #recommendations-text li, #pesticides-list li {
+            margin-bottom: 8px;
+        }
+
+        .shop-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .shop-button {
+            background-color: var(--secondary);
+            font-size: 1.1rem;
+            padding: 15px 30px;
+        }
+
+        .shop-button:hover {
+            background-color: var(--secondary-dark);
+        }
+
+        .shop-icon {
+            font-size: 1.1rem;
+        }
+        
+        #unsupported-image-error {
+            padding: 20px;
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            border-radius: var(--border-radius);
+            color: #c62828;
+            margin: 20px auto;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 40px 0 20px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .footer-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .footer-section p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 1.1rem;
+        }
+
+        .social-icon:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Translation Dropdown Styles */
+        #translate-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+        }
+
+        #translate-button {
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        #translate-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        #translate-dropdown {
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            background: white;
+            padding: 15px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius);
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            width: 280px;
+        }
+        
+        .goog-te-combo {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid #e0e0e0;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            body {
+                padding-bottom: 500px; /* Larger footer on medium screens */
+            }
+            
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 700px; /* Larger footer on small screens */
+            }
+            
+            .result-flex {
+                flex-direction: column;
+            }
+            
+            .image-container, .results-info {
+                min-width: 100%;
+            }
+            
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn-action {
+                width: 100%;
+            }
+            
+            .upload-container {
+                padding: 25px 15px;
+            }
+            
+            .file-label {
+                padding: 20px;
+            }
+            
+            nav ul {
+                gap: 5px;
+            }
+            
+            nav a {
+                padding: 5px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .btn {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+            
+            #translate-button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                right: 15px;
+                bottom: 15px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            body {
+                padding-bottom: 850px; /* Even larger footer on very small screens */
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.7rem;
+            }
+            
+            .file-icon {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🌱</span> Sasyavardhana
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                    <li><a href="/" class="btn btn-login" id="logout-btn"><i class="fas fa-sign-out-alt btn-icon"></i> Log out</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-apple-alt" style="color: #e74c3c;"></i> Apple Disease Prediction</h1>
+                <p>Upload or capture an image of an apple to detect diseases and get treatment recommendations.</p>
+            </div>
+            
+            <div class="upload-container">
+                <div class="upload-box">
+                    <form id="upload-form" enctype="multipart/form-data">
+                        <div class="file-input-container">
+                            <input type="file" id="file-input" name="file" accept="image/*">
+                            <label for="file-input" class="file-label">
+                                <i class="fas fa-upload file-icon"></i>
+                                <span class="file-text">Choose an apple image or drop it here</span>
+                                <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">Supported formats: JPG, PNG, JPEG</p>
+                            </label>
+                        </div>
+                        <div class="button-group">
+                            <button type="button" id="camera-button" class="btn-action">
+                                <i class="fas fa-camera"></i> Capture Photo
+                            </button>
+                            <button type="submit" id="upload-button" class="btn-action">
+                                <i class="fas fa-search"></i> Analyze Image
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Camera Feed Section -->
+            <div id="camera-feed" class="hidden">
+                <h3><i class="fas fa-camera"></i> Camera Preview</h3>
+                <video id="video" width="500" height="375" autoplay></video>
+                <div class="camera-buttons">
+                    <button type="button" id="capture-button" class="btn-action">
+                        <i class="fas fa-camera"></i> Take Photo
+                    </button>
+                    <button type="button" id="cancel-capture-button" class="btn-action">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>Analyzing your apple image...</p>
+            </div>
+            
+            <div id="result-container" class="hidden">
+                <h2><i class="fas fa-clipboard-check"></i> Analysis Results</h2>
+                <div class="result-flex">
+                    <div class="image-container">
+                        <img id="uploaded-image" src="" alt="Uploaded apple">
+                    </div>
+                    <div class="results-info">
+                        <div class="result-item">
+                            <h3><i class="fas fa-stethoscope"></i> Diagnosis</h3>
+                            <p id="disease-result" class="diagnosis"></p>
+                        </div>
+                        <div class="result-item">
+                            <h3><i class="fas fa-chart-bar"></i> Confidence Scores</h3>
+                            <div id="confidence-bars"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="recommendations">
+                    <h3><i class="fas fa-lightbulb"></i> Recommendations</h3>
+                    <div id="recommendations-text"></div>
+                </div>
+                
+                <!-- Pesticide recommendations section -->
+                <div class="pesticides">
+                    <h3><i class="fas fa-prescription-bottle"></i> Recommended Treatments</h3>
+                    <div id="pesticides-list"></div>
+                </div>
+                
+                <!-- Shop button -->
+                <div class="shop-container">
+                    <a href="{{ url_for('shop') }}" id="shop-button" class="btn shop-button">
+                        <i class="fas fa-shopping-cart shop-icon"></i>
+                        Shop Recommended Products
+                    </a>
+                </div>
+            </div>
+            
+            <div id="unsupported-image-error" class="hidden">
+                <p class="error-message"><i class="fas fa-exclamation-triangle"></i> Unsupported image. Please upload an image of an apple.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Translate Container -->
+    <div id="translate-container">
+        <button id="translate-button">
+            <i class="fas fa-globe"></i> Translate
+        </button>
+        <div id="translate-dropdown">
+            <div id="google_translate_element"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About Sasyavardhana</h3>
+                    <p>We're revolutionizing agriculture with AI-powered solutions that help farmers increase yield, reduce costs, and implement sustainable practices.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/shop"><i class="fas fa-store"></i> Shop</a></li>
+                        <li><a href="/chatbot"><i class="fas fa-robot"></i> AI Assistant</a></li>
+                        <li><a href="/weather1"><i class="fas fa-cloud-sun"></i> Weather Alerts</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> Email: <a href="mailto:sasyavardhana@gmail.com">sasyavardhana@gmail.com</a></li>
+                        <li><i class="fas fa-phone"></i> Phone: +91 98765 43210</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Address: Sasyavardhana Park, Nashik</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect With Us</h3>
+                    <p>Follow us on social media for updates and farming tips.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>Current Date and Time: <span id="current-datetime">2025-04-14 05:02:21</span> | Logged in as: <span id="user-login">shelkesanchit632003</span></p>
+                <p>&copy; 2025 Sasyavardhana. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='grapescript.js') }}"></script>
+    
+    <script>
+        // File input visual enhancement
+        const fileInput = document.getElementById('file-input');
+        const fileLabel = document.querySelector('.file-label');
+        const fileText = document.querySelector('.file-text');
+        
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                fileText.textContent = fileName;
+                fileLabel.classList.add('file-selected');
+            } else {
+                fileText.textContent = 'Choose an apple image or drop it here';
+                fileLabel.classList.remove('file-selected');
+            }
+        });
+        
+        // Drag and drop functionality
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileLabel.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                fileLabel.classList.add('file-hover');
+            });
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileLabel.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                fileLabel.classList.remove('file-hover');
+            });
+        });
+        
+        fileLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInput.files = e.dataTransfer.files;
+            
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                fileText.textContent = fileName;
+                fileLabel.classList.add('file-selected');
+            }
+        });
+        
+        // Camera functionality
+        const cameraButton = document.getElementById('camera-button');
+        const cameraFeed = document.getElementById('camera-feed');
+        const video = document.getElementById('video');
+        const captureButton = document.getElementById('capture-button');
+        const cancelCaptureButton = document.getElementById('cancel-capture-button');
+        
+        cameraButton.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                cameraFeed.classList.remove('hidden');
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Could not access camera. Please make sure you have granted camera permissions.');
+            }
+        });
+        
+        captureButton.addEventListener('click', () => {
+            // Create a canvas element to capture the image
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            // Convert canvas to blob
+            canvas.toBlob(blob => {
+                // Create a File object from the blob
+                const file = new File([blob], "captured-image.png", { type: "image/png" });
+                
+                // Create a new FileList-like object
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                
+                // Assign to the file input
+                fileInput.files = dataTransfer.files;
+                
+                // Update the file label text
+                fileText.textContent = "Camera capture";
+                fileLabel.classList.add('file-selected');
+                
+                // Stop the video stream and hide camera feed
+                stopCamera();
+                cameraFeed.classList.add('hidden');
+            });
+        });
+        
+        cancelCaptureButton.addEventListener('click', () => {
+            stopCamera();
+            cameraFeed.classList.add('hidden');
+        });
+        
+        function stopCamera() {
+            if (video.srcObject) {
+                const tracks = video.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
+        }
+        
+        // Form submission handling
+        const uploadForm = document.getElementById('upload-form');
+        const uploadButton = document.getElementById('upload-button');
+        const loading = document.getElementById('loading');
+        const resultContainer = document.getElementById('result-container');
+        const uploadedImage = document.getElementById('uploaded-image');
+        const diseaseResult = document.getElementById('disease-result');
+        const confidenceBars = document.getElementById('confidence-bars');
+        const recommendationsText = document.getElementById('recommendations-text');
+        const pesticidesList = document.getElementById('pesticides-list');
+        const unsupportedImageError = document.getElementById('unsupported-image-error');
+        
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!fileInput.files.length) {
+                alert('Please select an image first');
+                return;
+            }
+            
+            // Show loading spinner
+            loading.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            unsupportedImageError.classList.add('hidden');
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.error === "unsupported_image") {
+                    loading.classList.add('hidden');
+                    unsupportedImageError.classList.remove('hidden');
+                    return;
+                }
+                
+                // Display results
+                uploadedImage.src = URL.createObjectURL(fileInput.files[0]);
+                
+                // Set disease result with appropriate class
+                diseaseResult.textContent = data.disease;
+                diseaseResult.className = 'diagnosis';
+                
+                if (data.disease === "Healthy") {
+                    diseaseResult.classList.add('healthy');
+                } else if (data.disease === "Black Rot") {
+                    diseaseResult.classList.add('blotch');
+                } else if (data.disease === "Cedar Apple Rust") {
+                    diseaseResult.classList.add('rotten');
+                } else if (data.disease === "Apple Scab") {
+                    diseaseResult.classList.add('scab');
+                }
+                
+                // Generate confidence bars
+                confidenceBars.innerHTML = '';
+                
+                // Function to create confidence bars with animation
+                function createConfidenceBar(disease, confidence, className) {
+                    const container = document.createElement('div');
+                    container.className = 'confidence-bar-container';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'confidence-label';
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'disease-name';
+                    nameSpan.textContent = disease;
+                    
+                    const percentSpan = document.createElement('span');
+                    percentSpan.className = 'percentage';
+                    percentSpan.textContent = `${confidence.toFixed(1)}%`;
+                    
+                    label.appendChild(nameSpan);
+                    label.appendChild(percentSpan);
+                    
+                    const bar = document.createElement('div');
+                    bar.className = 'confidence-bar';
+                    
+                    const fill = document.createElement('div');
+                    fill.className = `confidence-fill ${className}`;
+                    fill.style.width = '0%'; // Start at 0 for animation
+                    
+                    bar.appendChild(fill);
+                    container.appendChild(label);
+                    container.appendChild(bar);
+                    
+                    confidenceBars.appendChild(container);
+                    
+                    // Animate the confidence bar after a small delay
+                    setTimeout(() => {
+                        fill.style.width = `${confidence}%`;
+                    }, 100);
+                }
+                
+                // Create bars for each disease
+                const confidences = data.confidences || {
+                    "Healthy": 0,
+                    "Black Rot": 0,
+                    "Cedar Apple Rust": 0,
+                    "Apple Scab": 0
+                };
+                
+                createConfidenceBar("Healthy", confidences.Healthy || 0, "fill-healthy");
+                createConfidenceBar("Black Rot", confidences["Black Rot"] || 0, "fill-blotch");
+                createConfidenceBar("Cedar Apple Rust", confidences["Cedar Apple Rust"] || 0, "fill-rotten");
+                createConfidenceBar("Apple Scab", confidences["Apple Scab"] || 0, "fill-scab");
+                
+                // Set recommendations
+                if (data.recommendations) {
+                    recommendationsText.innerHTML = `<p>${data.recommendations}</p>`;
+                } else {
+                    // Default recommendations based on disease
+                    let recommendations = '';
+                    
+                    if (data.disease === "Healthy") {
+                        recommendations = `
+                            <p>Your apple appears to be healthy! Here are some tips to maintain plant health:</p>
+                            <ul>
+                                <li>Continue regular watering and fertilization schedule</li>
+                                <li>Monitor for early signs of disease or pest activity</li>
+                                <li>Maintain good air circulation around trees</li>
+                                <li>Practice good orchard hygiene by removing fallen leaves and fruit</li>
+                            </ul>
+                        `;
+                    } else if (data.disease === "Black Rot") {
+                        recommendations = `
+                            <p>Black rot is a fungal disease that affects apple trees. Here's how to manage it:</p>
+                            <ul>
+                                <li>Remove and destroy all infected fruit, leaves, and cankers</li>
+                                <li>Prune out dead or diseased branches during dormant season</li>
+                                <li>Apply fungicides starting at bloom time</li>
+                                <li>Improve air circulation by proper pruning</li>
+                                <li>Clean all pruning tools with 10% bleach solution between cuts</li>
+                            </ul>
+                        `;
+                    } else if (data.disease === "Cedar Apple Rust") {
+                        recommendations = `
+                            <p>Cedar apple rust is a fungal disease requiring both apple trees and junipers to complete its life cycle:</p>
+                            <ul>
+                                <li>Remove nearby juniper trees if possible (the alternate host)</li>
+                                <li>Apply protective fungicides starting at green tip stage</li>
+                                <li>Choose resistant apple varieties for new plantings</li>
+                                <li>Remove infected leaves and fruit</li>
+                                <li>Ensure good air circulation by proper spacing and pruning</li>
+                            </ul>
+                        `;
+                    } else if (data.disease === "Apple Scab") {
+                        recommendations = `
+                            <p>Apple scab is one of the most common apple diseases caused by the fungus Venturia inaequalis:</p>
+                            <ul>
+                                <li>Apply fungicide treatments beginning at bud break</li>
+                                <li>Rake and destroy fallen leaves in autumn</li>
+                                <li>Prune trees to improve air circulation</li>
+                                <li>Consider resistant varieties for future plantings</li>
+                                <li>Apply a 5% urea solution to fallen leaves to speed decomposition</li>
+                            </ul>
+                        `;
+                    }
+                    
+                    recommendationsText.innerHTML = recommendations;
+                }
+                
+                // Set pesticide recommendations
+                if (data.pesticides) {
+                    pesticidesList.innerHTML = `<p>${data.pesticides}</p>`;
+                } else {
+                    // Default pesticide recommendations based on disease
+                    let pesticides = '';
+                    
+                    if (data.disease === "Healthy") {
+                        pesticides = `
+                            <p>No treatment needed at this time. Consider these preventive measures:</p>
+                            <ul>
+                                <li>Dormant oil spray during late winter</li>
+                                <li>Proper nutrition with balanced fertilizer</li>
+                                <li>Regular monitoring for early detection of issues</li>
+                            </ul>
+                        `;
+                    } else if (data.disease === "Black Rot") {
+                        pesticides = `
+                            <p>Recommended treatments for Black Rot:</p>
+                            <ul>
+                                <li>Captan 50WP (follow label instructions)</li>
+                                <li>Mancozeb (follow label instructions)</li>
+                                <li>Myclobutanil-based fungicides</li>
+                                <li>Copper-based fungicides for organic management</li>
+                                <li>Thiophanate-methyl for severe infections</li>
+                            </ul>
+                        `;
+                    } else if (data.disease === "Cedar Apple Rust") {
+                        pesticides = `
+                            <p>Recommended treatments for Cedar Apple Rust:</p>
+                            <ul>
+                                <li>Propiconazole-based fungicides</li>
+                                <li>Myclobutanil (follow label instructions)</li>
+                                <li>Triadimefon products</li>
+                                <li>Sulfur-based fungicides for organic management</li>
+                                <li>Copper-based products for early season control</li>
+                            </ul>
+                        `;
+                    } else if (data.disease === "Apple Scab") {
+                        pesticides = `
+                            <p>Recommended treatments for Apple Scab:</p>
+                            <ul>
+                                <li>Captan 50WP (follow label instructions)</li>
+                                <li>Mancozeb fungicides</li>
+                                <li>Myclobutanil products</li>
+                                <li>Liquid lime sulfur for organic management</li>
+                                <li>Chlorothalonil for severe infections</li>
+                            </ul>
+                        `;
+                    }
+                    
+                    pesticidesList.innerHTML = pesticides;
+                }
+                
+                // Hide loading and show results
+                loading.classList.add('hidden');
+                resultContainer.classList.remove('hidden');
+                
+                // Scroll to results
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                loading.classList.add('hidden');
+                alert('An error occurred while analyzing the image.');
+            }
+        });
+        
+        // Update current datetime in footer
+        const updateDateTime = () => {
+            const now = new Date();
+            const formattedDate = now.toISOString().slice(0, 19).replace('T', ' ');
+            document.getElementById('current-datetime').textContent = formattedDate;
+        };
+        
+        // Update time every minute
+        setInterval(updateDateTime, 60000);
+        
+        // Toggle Translate Dropdown
+        document.getElementById("translate-button").addEventListener("click", function () {
+            const dropdown = document.getElementById("translate-dropdown");
+            dropdown.style.display = 
+                dropdown.style.display === "none" || dropdown.style.display === "" 
+                    ? "block" 
+                    : "none";
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const container = document.getElementById('translate-container');
+            if (container && !container.contains(event.target)) {
+                document.getElementById('translate-dropdown').style.display = 'none';
+            }
+        });
+
+        // Load Google Translate Script
+        function loadGoogleTranslateScript() {
+            const script = document.createElement("script");
+            script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            script.type = "text/javascript";
+            document.body.appendChild(script);
+        }
+
+        // Initialize Google Translate Element
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: "en",
+                    includedLanguages: "as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,en",
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                    autoDisplay: false,
+                },
+                "google_translate_element"
+            );
+        }
+
+        // Load the Translate Script
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGoogleTranslateScript();
+            updateDateTime();
+        });
+    </script>
+</body>
+</html>

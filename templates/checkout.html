@@ -1,0 +1,225 @@
+{% extends 'base1.html' %}
+
+{% block title %}Checkout - Farmer's Market{% endblock %}
+
+{% block content %}
+<div class="container checkout-page">
+    <h1>Checkout</h1>
+    
+    <div class="checkout-layout">
+        <!-- Checkout Form -->
+        <div class="checkout-form-container">
+            <form action="{{ url_for('checkout') }}" method="post" id="checkout-form">
+                <!-- Shipping Information -->
+                <div class="form-card">
+                    <h2>Shipping Information</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" id="first_name" name="first_name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" name="state" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="zip_code">Zip Code</label>
+                            <input type="text" id="zip_code" name="zip_code" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Method -->
+                <div class="form-card">
+                    <h2>Payment Method</h2>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-method">
+                            <input type="radio" id="credit-card" name="payment_method" value="credit-card" checked>
+                            <label for="credit-card">Credit Card</label>
+                        </div>
+                        
+                        <div class="payment-method">
+                            <input type="radio" id="paypal" name="payment_method" value="paypal">
+                            <label for="paypal">PayPal</label>
+                        </div>
+                        
+                        <div class="payment-method">
+                            <input type="radio" id="bank-transfer" name="payment_method" value="bank-transfer">
+                            <label for="bank-transfer">Bank Transfer</label>
+                        </div>
+                    </div>
+                    
+                    <div id="credit-card-fields">
+                        <div class="form-group">
+                            <label for="card_number">Card Number</label>
+                            <input type="text" id="card_number" placeholder="1234 5678 9012 3456">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expiry_date">Expiry Date</label>
+                                <input type="text" id="expiry_date" placeholder="MM/YY">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" placeholder="123">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block checkout-btn">
+                    Pay ₹{{ "%.2f"|format(total) }}
+                </button>
+            </form>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <div class="form-card">
+                <h2>Order Summary</h2>
+                
+                <div class="order-items">
+                    {% for item in cart_items %}
+                    <div class="order-item">
+                        <div class="order-item-info">
+                            <h3>{{ item.name }}</h3>
+                            <p>Qty: {{ item.quantity }}</p>
+                        </div>
+                        <div class="order-item-price">₹{{ "%.2f"|format(item.item_total) }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="order-totals">
+                    <div class="summary-item">
+                        <span>Subtotal</span>
+                        <span>₹{{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <span>Shipping</span>
+                        <span>₹{{ "%.2f"|format(shipping) }}</span>
+                    </div>
+                    
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span>₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Translation Container -->
+<div
+    id="translate-container"
+    style="position: fixed; bottom: 20px; right: 20px; z-index: 9999"
+>
+    <button
+        id="translate-button"
+        style="
+            padding: 10px;
+            background-color: #2d457e;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        "
+    >
+        🌐 Translate
+    </button>
+    <!-- Scrollable Translate Dropdown -->
+    <div
+        id="translate-dropdown"
+        style="
+            display: none;
+            max-height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        "
+    >
+        <div id="google_translate_element"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
+<script>
+    // Toggle Translate Dropdown
+    document
+        .getElementById("translate-button")
+        .addEventListener("click", function () {
+            const dropdown = document.getElementById("translate-dropdown");
+            dropdown.style.display =
+                dropdown.style.display === "none" || dropdown.style.display === ""
+                    ? "block"
+                    : "none";
+        });
+
+    // Load Google Translate Script Dynamically
+    function loadGoogleTranslateScript() {
+        const script = document.createElement("script");
+        script.src =
+            "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        script.type = "text/javascript";
+        document.body.appendChild(script);
+    }
+
+    // Initialize Google Translate Element
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+            {
+                pageLanguage: "en", // Default page language
+                includedLanguages: `
+                    as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+                    en
+                `,
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            },
+            "google_translate_element"
+        );
+    }
+
+    // Load the Translate Script
+    loadGoogleTranslateScript();
+</script>
+{% endblock %}

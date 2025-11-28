@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grape Disease Detection | Sasyavardhana</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #2ecc71;
+            --primary-dark: #27ae60;
+            --primary-light: #a8e4bc;
+            --primary-ultra-light: #eafaf1;
+            --secondary: #3498db;
+            --secondary-dark: #2980b9;
+            --accent: #f39c12;
+            --accent-dark: #e67e22;
+            --dark: #2c3e50;
+            --medium: #7f8c8d;
+            --light: #ecf0f1;
+            --ultra-light: #f9f9f9;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.1);
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --border-radius-sm: 4px;
+            --border-radius: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 20px;
+            --transition: all 0.3s ease;
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--ultra-light);
+            color: var(--dark);
+            line-height: 1.6;
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 320px; /* Space for footer */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--medium);
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            position: relative;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 8px 15px;
+            border-radius: var(--border-radius-xl);
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--accent);
+            color: white;
+            padding: 10px 25px;
+            border-radius: var(--border-radius-xl);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-dark);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-login {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-login:hover {
+            background-color: var(--dark);
+        }
+        
+        .btn-icon {
+            font-size: 1rem;
+        }
+
+        /* Main Content Styles */
+        main {
+            padding: 40px 0;
+        }
+
+        .main-content {
+            padding-top: 0;
+            margin-bottom: 40px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+
+        .upload-section {
+            text-align: center;
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            padding: 35px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+
+        .upload-section:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+
+        .upload-section h1 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .upload-section p {
+            max-width: 700px;
+            margin: 0 auto 25px;
+        }
+
+        .file-upload {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            background-color: var(--primary-ultra-light);
+            border: 2px dashed var(--primary);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .upload-label:hover {
+            background-color: var(--primary-light);
+            transform: scale(1.02);
+        }
+
+        .upload-label span {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .upload-label small {
+            font-size: 0.9rem;
+            color: var(--medium);
+            margin-top: 8px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .camera-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        #captureButton, #predictButton {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 1rem;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            min-width: 180px;
+            color: white;
+        }
+
+        #captureButton {
+            background-color: var(--primary);
+        }
+
+        #captureButton:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        #predictButton {
+            background-color: var(--primary);
+        }
+
+        #predictButton:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        #predictButton:disabled {
+            background-color: var(--medium);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #cameraFeed {
+            width: 100%;
+            max-width: 500px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 3px solid var(--primary-light);
+            display: none;
+        }
+
+        .result-section {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            border: 1px solid rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-section h2 {
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-light);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .result-box {
+            background-color: var(--ultra-light);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border-left: 5px solid var(--primary);
+        }
+
+        #resultMessage {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Image Preview Area */
+        .image-preview-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--primary-light);
+            text-align: center;
+        }
+
+        .image-preview-container h3 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin: 0 auto;
+            display: none;
+        }
+
+        #diseaseInfo {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--primary-light);
+        }
+
+        #diseaseInfo h3 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+
+        #diseaseInfo p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        #diseaseInfo ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        #diseaseInfo li {
+            margin-bottom: 8px;
+        }
+
+        /* Pesticide Information Styling */
+        #pesticideInfo {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--primary-light);
+        }
+
+        #pesticideInfo h3 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pesticide-type {
+            margin-bottom: 20px;
+        }
+
+        .pesticide-type h4 {
+            color: var(--primary-dark);
+            border-bottom: 1px solid var(--primary-light);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* Pesticide Images Styling */
+        #pesticideImages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .pesticide-image {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            text-align: center;
+            padding: 15px;
+        }
+
+        .pesticide-image:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .pesticide-image img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            border-radius: var(--border-radius-sm);
+        }
+
+        .pesticide-image h4 {
+            font-size: 1rem;
+            color: var(--primary-dark);
+            margin: 10px 0;
+        }
+
+        /* E-commerce Recommendations */
+        #ecommerceInfo {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            border-left: 5px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        #ecommerceInfo h3 {
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pesticide-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .pesticide-card {
+            background-color: var(--ultra-light);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .pesticide-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .pesticide-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .pesticide-card .card-content {
+            padding: 15px;
+        }
+
+        .pesticide-card h4 {
+            margin: 10px 0;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+
+        .pesticide-card .price {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+
+        .pesticide-card p {
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: var(--medium);
+            height: 60px;
+            overflow: hidden;
+        }
+
+        .pesticide-card .view-product {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: var(--border-radius-xl);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .pesticide-card .view-product:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        #shopNowButton {
+            background-color: var(--primary);
+            font-size: 1.1rem;
+            padding: 15px 30px;
+            margin: 20px auto;
+            display: block;
+            max-width: 250px;
+        }
+
+        #shopNowButton:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 40px 0 20px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .footer-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .footer-section p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 1.1rem;
+        }
+
+        .social-icon:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Translation Dropdown Styles */
+        #translate-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+        }
+
+        #translate-button {
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        #translate-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        #translate-dropdown {
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            background: white;
+            padding: 15px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius);
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            width: 280px;
+        }
+        
+        .goog-te-combo {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid #e0e0e0;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            body {
+                padding-bottom: 500px; /* Larger footer on medium screens */
+            }
+            
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .pesticide-options {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 700px; /* Larger footer on small screens */
+            }
+            
+            .upload-section h1 {
+                font-size: 1.8rem;
+            }
+            
+            .upload-label {
+                padding: 20px;
+            }
+            
+            .upload-label span {
+                font-size: 1rem;
+            }
+            
+            .camera-section {
+                gap: 15px;
+            }
+            
+            #captureButton, #predictButton {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .pesticide-options {
+                grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
+            }
+            
+            nav ul {
+                gap: 5px;
+            }
+            
+            nav a {
+                padding: 5px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .btn {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+            
+            #translate-button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                right: 15px;
+                bottom: 15px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            body {
+                padding-bottom: 850px; /* Even larger footer on very small screens */
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.7rem;
+            }
+            
+            .upload-section {
+                padding: 25px 15px;
+            }
+            
+            .result-section {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🌱</span> Sasyavardhana
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                    <li><a href="/" class="btn btn-login" id="logout-btn"><i class="fas fa-sign-out-alt btn-icon"></i> Log out</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container main-content">
+            <div class="page-header">
+                <h1><i class="fas fa-wine-glass-alt" style="color: #2ecc71;"></i> Grape Disease Detection</h1>
+                <p>Upload or capture an image of a grape leaf to detect diseases and get treatment recommendations.</p>
+            </div>
+            
+            <div class="upload-section">
+                <div class="file-upload">
+                    <label for="fileInput" class="upload-label">
+                        <span><i class="fas fa-upload"></i> Upload Image</span>
+                        <small>Click to browse or drag & drop your grape leaf image here</small>
+                        <small>Supported formats: JPG, PNG, JPEG</small>
+                        <input type="file" id="fileInput" accept="image/*">
+                    </label>
+                </div>
+                <div class="camera-section">
+                    <button id="captureButton"><i class="fas fa-camera"></i> Open Camera</button>
+                    <video id="cameraFeed" autoplay></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                    <button id="predictButton" disabled><i class="fas fa-search"></i> Predict Disease</button>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <h2><i class="fas fa-microscope"></i> Prediction Result</h2>
+                <div class="result-box">
+                    <p id="resultMessage"><i class="fas fa-info-circle"></i> No prediction yet. Please upload or capture an image of a grape leaf.</p>
+                    
+                    <!-- Image Preview Container -->
+                    <div class="image-preview-container">
+                        <h3><i class="fas fa-image"></i> Analyzed Image</h3>
+                        <img id="imagePreview" alt="Uploaded grape leaf image" />
+                    </div>
+                    
+                    <div id="diseaseInfo"></div>
+                    <div id="pesticideImages"></div> <!-- Container for pesticide images -->
+                    <div id="pesticideInfo" class="pesticide-info"></div> <!-- Container for pesticide details -->
+                    <div id="ecommerceInfo" style="display: none;">
+                        <h3><i class="fas fa-shopping-basket"></i> Recommended Products</h3>
+                        <div class="pesticide-options">
+                            <!-- Products will be populated here dynamically -->
+                        </div>
+                        <a href="{{ url_for('shop') }}" id="shopNowButton" class="btn">
+                            <i class="fas fa-shopping-cart"></i> Shop Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Translate Container -->
+    <div id="translate-container">
+        <button id="translate-button">
+            <i class="fas fa-globe"></i> Translate
+        </button>
+        <div id="translate-dropdown">
+            <div id="google_translate_element"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About Sasyavardhana</h3>
+                    <p>We're revolutionizing agriculture with AI-powered solutions that help farmers increase yield, reduce costs, and implement sustainable practices.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/shop"><i class="fas fa-store"></i> Shop</a></li>
+                        <li><a href="/chatbot"><i class="fas fa-robot"></i> AI Assistant</a></li>
+                        <li><a href="/weather1"><i class="fas fa-cloud-sun"></i> Weather Alerts</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> Email: <a href="mailto:sasyavardhana@gmail.com">sasyavardhana@gmail.com</a></li>
+                        <li><i class="fas fa-phone"></i> Phone: +91 98765 43210</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Address: Sasyavardhana Park, Nashik</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect With Us</h3>
+                    <p>Follow us on social media for updates and farming tips.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>Current Date and Time: <span id="current-datetime">2025-04-14 05:50:13</span> | Logged in as: <span id="user-login">shelkesanchit632003</span></p>
+                <p>&copy; 2025 Sasyavardhana. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+    <script>
+        // File input visual enhancement
+        const fileInput = document.getElementById('fileInput');
+        const uploadLabel = document.querySelector('.upload-label');
+        const uploadText = uploadLabel.querySelector('span');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                uploadText.innerHTML = `<i class="fas fa-file-image"></i> ${fileName}`;
+                uploadLabel.classList.add('file-selected');
+                document.getElementById('predictButton').disabled = false;
+                
+                // Display image preview
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                uploadText.innerHTML = '<i class="fas fa-upload"></i> Upload Image';
+                uploadLabel.classList.remove('file-selected');
+                document.getElementById('predictButton').disabled = true;
+                imagePreview.style.display = 'none';
+            }
+        });
+        
+        // Drag and drop functionality
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadLabel.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadLabel.classList.add('file-hover');
+            });
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadLabel.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadLabel.classList.remove('file-hover');
+            });
+        });
+        
+        uploadLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInput.files = e.dataTransfer.files;
+            
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                uploadText.innerHTML = `<i class="fas fa-file-image"></i> ${fileName}`;
+                uploadLabel.classList.add('file-selected');
+                document.getElementById('predictButton').disabled = false;
+                
+                // Display image preview for drag and drop
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Camera handling
+        const captureButton = document.getElementById('captureButton');
+        const cameraFeed = document.getElementById('cameraFeed');
+        const canvas = document.getElementById('canvas');
+        const predictButton = document.getElementById('predictButton');
+        let stream = null;
+        
+        captureButton.addEventListener('click', async function() {
+            try {
+                if (cameraFeed.style.display === 'block') {
+                    // Camera is already open, take a picture
+                    // Get the video dimensions
+                    const width = cameraFeed.videoWidth;
+                    const height = cameraFeed.videoHeight;
+                    
+                    // Set canvas dimensions to match video
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Draw current video frame to canvas
+                    canvas.getContext('2d').drawImage(cameraFeed, 0, 0, width, height);
+                    
+                    // Get image data from canvas
+                    const imageDataURL = canvas.toDataURL('image/png');
+                    
+                    // Display the captured image
+                    imagePreview.src = imageDataURL;
+                    imagePreview.style.display = 'block';
+                    
+                    // Convert to blob for file upload
+                    canvas.toBlob(blob => {
+                        const file = new File([blob], "camera-capture.png", { type: "image/png" });
+                        
+                        // Create a FileList-like object
+                        const dt = new DataTransfer();
+                        dt.items.add(file);
+                        
+                        // Set the file input's files
+                        fileInput.files = dt.files;
+                        
+                        // Update label
+                        uploadText.innerHTML = '<i class="fas fa-camera"></i> Camera Capture';
+                        uploadLabel.classList.add('file-selected');
+                        
+                        // Close camera
+                        stopCamera();
+                        cameraFeed.style.display = 'none';
+                        captureButton.innerHTML = '<i class="fas fa-camera"></i> Open Camera';
+                        
+                        // Enable predict button
+                        predictButton.disabled = false;
+                    }, 'image/png');
+                } else {
+                    // Open the camera
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'environment',
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 } 
+                        } 
+                    });
+                    cameraFeed.srcObject = stream;
+                    cameraFeed.style.display = 'block';
+                    captureButton.innerHTML = '<i class="fas fa-camera"></i> Take Photo';
+                }
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                alert('Could not access camera. Please make sure you have granted camera permissions.');
+            }
+        });
+        
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        }
+        
+        // Predict functionality
+        predictButton.addEventListener('click', async function() {
+            if (!fileInput.files.length) {
+                alert('Please select an image first');
+                return;
+            }
+            
+            // Show loading indicator
+            document.getElementById('resultMessage').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing image...';
+            document.getElementById('diseaseInfo').innerHTML = '';
+            document.getElementById('pesticideImages').innerHTML = '';
+            document.getElementById('pesticideInfo').innerHTML = '';
+            document.getElementById('ecommerceInfo').style.display = 'none';
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch('/predict_grape_disease', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Display results
+                displayResults(data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('resultMessage').innerHTML = '<i class="fas fa-exclamation-circle"></i> An error occurred while processing your image. Please try again.';
+            }
+        });
+        
+        // Function to display results
+        function displayResults(data) {
+            const resultMessage = document.getElementById('resultMessage');
+            const diseaseInfo = document.getElementById('diseaseInfo');
+            const pesticideImages = document.getElementById('pesticideImages');
+            const pesticideInfo = document.getElementById('pesticideInfo');
+            const ecommerceInfo = document.getElementById('ecommerceInfo');
+            
+            // Set disease result with appropriate styling
+            if (data.disease === 'Healthy') {
+                resultMessage.innerHTML = '<i class="fas fa-check-circle" style="color: #2ecc71;"></i> Your grape leaf appears to be <strong style="color: #2ecc71;">Healthy</strong>';
+            } else {
+                resultMessage.innerHTML = `<i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> Disease Detected: <strong style="color: #e74c3c;">${data.disease}</strong>`;
+            }
+            
+            // Display disease information
+            let diseaseDescription = '';
+            let pesticideRecommendations = '';
+            
+            switch(data.disease) {
+                case 'Black Rot':
+                    diseaseDescription = `
+                        <h3><i class="fas fa-info-circle"></i> About Black Rot</h3>
+                        <p>Black rot is a fungal disease caused by <em>Guignardia bidwellii</em>. It's one of the most serious diseases of grapes in regions with warm, humid climates.</p>
+                        <h3><i class="fas fa-list-ul"></i> Symptoms</h3>
+                        <ul>
+                            <li>Small, reddish-brown spots on leaves</li>
+                            <li>Circular lesions with dark borders</li>
+                            <li>Black, mummified berries</li>
+                            <li>Tiny black dots (pycnidia) visible on infected tissue</li>
+                        </ul>
+                    `;
+                    pesticideRecommendations = `
+                        <h3><i class="fas fa-prescription-bottle"></i> Recommended Treatments</h3>
+                        <div class="pesticide-type">
+                            <h4>Fungicides</h4>
+                            <ul>
+                                <li>Captan 50WP (follow label instructions)</li>
+                                <li>Mancozeb fungicides (every 7-14 days)</li>
+                                <li>Myclobutanil-based products like Rally or Nova</li>
+                                <li>Copper-based fungicides for organic management</li>
+                            </ul>
+                        </div>
+                        <div class="pesticide-type">
+                            <h4>Cultural Practices</h4>
+                            <ul>
+                                <li>Remove infected leaves, fruit, and canes from the vineyard</li>
+                                <li>Prune to improve air circulation</li>
+                                <li>Remove "mummy" berries that overwinter the fungus</li>
+                                <li>Apply dormant sprays in early spring</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'Esca (Black Measles)':
+                    diseaseDescription = `
+                        <h3><i class="fas fa-info-circle"></i> About Esca (Black Measles)</h3>
+                        <p>Esca is a complex disease caused by several fungi including <em>Phaeomoniella chlamydospora</em> and <em>Phaeoacremonium aleophilum</em>. It's a serious trunk disease affecting grapevines worldwide.</p>
+                        <h3><i class="fas fa-list-ul"></i> Symptoms</h3>
+                        <ul>
+                            <li>Tiger-stripe pattern on leaves (yellow/red with brown necrosis)</li>
+                            <li>Black spots on berries ("measles")</li>
+                            <li>Dieback of branches or entire plants</li>
+                            <li>Internal wood decay and discoloration</li>
+                            <li>Stunted growth and reduced yield</li>
+                        </ul>
+                    `;
+                    pesticideRecommendations = `
+                        <h3><i class="fas fa-prescription-bottle"></i> Recommended Treatments</h3>
+                        <div class="pesticide-type">
+                            <h4>Management Strategies</h4>
+                            <ul>
+                                <li>Remove and destroy infected vines</li>
+                                <li>Apply pruning wound protectants</li>
+                                <li>Use Trichoderma-based biological products</li>
+                                <li>Apply copper-based products during the dormant season</li>
+                                <li>Maintain vine health through proper nutrition and irrigation</li>
+                            </ul>
+                        </div>
+                        <div class="pesticide-type">
+                            <h4>Prevention</h4>
+                            <ul>
+                                <li>Use clean, disease-free planting material</li>
+                                <li>Prune during dry weather</li>
+                                <li>Disinfect pruning tools between cuts</li>
+                                <li>Avoid excessive stress on vines</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'Leaf Blight':
+                    diseaseDescription = `
+                        <h3><i class="fas fa-info-circle"></i> About Leaf Blight</h3>
+                        <p>Leaf blight in grapes is typically caused by fungal pathogens like <em>Alternaria</em> species. It can rapidly defoliate vines during conducive weather conditions.</p>
+                        <h3><i class="fas fa-list-ul"></i> Symptoms</h3>
+                        <ul>
+                            <li>Large, irregular brown spots on leaves</li>
+                            <li>Yellowing around lesions (chlorotic halos)</li>
+                            <li>Spots may coalesce to form large necrotic areas</li>
+                            <li>Premature leaf drop</li>
+                            <li>Reduced photosynthesis and vine vigor</li>
+                        </ul>
+                    `;
+                    pesticideRecommendations = `
+                        <h3><i class="fas fa-prescription-bottle"></i> Recommended Treatments</h3>
+                        <div class="pesticide-type">
+                            <h4>Fungicides</h4>
+                            <ul>
+                                <li>Copper-based fungicides</li>
+                                <li>Mancozeb products</li>
+                                <li>Azoxystrobin (Quadris)</li>
+                                <li>Pyraclostrobin + Boscalid (Pristine)</li>
+                                <li>Chlorothalonil for severe cases</li>
+                            </ul>
+                        </div>
+                        <div class="pesticide-type">
+                            <h4>Cultural Practices</h4>
+                            <ul>
+                                <li>Improve air circulation through proper canopy management</li>
+                                <li>Remove infected leaves from the vineyard</li>
+                                <li>Apply balanced fertilization</li>
+                                <li>Avoid overhead irrigation</li>
+                                <li>Maintain weed-free area around vines</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'Healthy':
+                    diseaseDescription = `
+                        <h3><i class="fas fa-check-circle"></i> Healthy Grape Leaf</h3>
+                        <p>Your grape leaf appears healthy with no visible signs of disease. Continue with these best practices to maintain vine health:</p>
+                        <ul>
+                            <li>Regular monitoring for early signs of diseases or pests</li>
+                            <li>Proper canopy management for good air circulation</li>
+                            <li>Balanced irrigation and fertilization</li>
+                            <li>Proper pruning during dormant season</li>
+                            <li>Preventive sprays during key growth stages</li>
+                        </ul>
+                    `;
+                    pesticideRecommendations = `
+                        <h3><i class="fas fa-leaf"></i> Preventive Measures</h3>
+                        <div class="pesticide-type">
+                            <h4>Preventive Treatments</h4>
+                            <ul>
+                                <li>Dormant oil spray during late winter</li>
+                                <li>Sulfur applications before bloom (follow local recommendations)</li>
+                                <li>Copper sprays early in the season</li>
+                                <li>Biological fungicides containing Bacillus subtilis</li>
+                            </ul>
+                        </div>
+                        <div class="pesticide-type">
+                            <h4>Cultural Practices</h4>
+                            <ul>
+                                <li>Maintain proper vine spacing</li>
+                                <li>Regular removal of weeds</li>
+                                <li>Balanced fertilization program</li>
+                                <li>Water management to avoid prolonged leaf wetness</li>
+                                <li>Regular monitoring for early detection</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                    
+                default:
+                    diseaseDescription = '<p>No specific information available for this condition.</p>';
+                    pesticideRecommendations = '<p>Please consult with a local agricultural extension for specific recommendations.</p>';
+            }
+            
+            diseaseInfo.innerHTML = diseaseDescription;
+            pesticideInfo.innerHTML = pesticideRecommendations;
+            
+            // Display pesticide images (sample display, you would need real images)
+            if (data.disease !== 'Healthy') {
+                pesticideImages.innerHTML = `
+                    <div class="pesticide-image">
+                        <img src="/static/pesticide1.jpg" alt="Recommended fungicide">
+                        <h4>Fungicide Option</h4>
+                    </div>
+                    <div class="pesticide-image">
+                        <img src="/static/pesticide2.jpg" alt="Organic option">
+                        <h4>Organic Option</h4>
+                    </div>
+                    <div class="pesticide-image">
+                        <img src="/static/pesticide3.jpg" alt="Application equipment">
+                        <h4>Sprayer Equipment</h4>
+                    </div>
+                `;
+            } else {
+                pesticideImages.innerHTML = '';
+            }
+            
+            // Display e-commerce recommendations
+            if (data.disease !== 'Healthy') {
+                // Show product recommendations
+                const pestOptions = document.querySelector('.pesticide-options');
+                pestOptions.innerHTML = '';
+                
+                // Sample product recommendations (replace with real data from your e-commerce system)
+                const products = [
+                    {
+                        name: "GrapeCare Pro Fungicide",
+                        price: "₹899",
+                        image: "/static/product1.jpg",
+                        description: "Broad-spectrum fungicide effective against multiple grape diseases"
+                    },
+                    {
+                        name: "OrganiFung Copper Spray",
+                        price: "₹699",
+                        image: "/static/product2.jpg",
+                        description: "Organic copper-based solution for preventive disease control"
+                    },
+                    {
+                        name: "VineMaster Sprayer Kit",
+                        price: "₹1,499",
+                        image: "/static/product3.jpg",
+                        description: "Complete kit with sprayer and attachments for vineyard application"
+                    }
+                ];
+                
+                products.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'pesticide-card';
+                    productCard.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}">
+                        <div class="card-content">
+                            <h4>${product.name}</h4>
+                            <div class="price">${product.price}</div>
+                            <p>${product.description}</p>
+                            <a href="{{ url_for('shop') }}" class="view-product">View Product</a>
+                        </div>
+                    `;
+                    pestOptions.appendChild(productCard);
+                });
+                
+                ecommerceInfo.style.display = 'block';
+            } else {
+                ecommerceInfo.style.display = 'none';
+            }
+        }
+        
+        // Update current datetime in footer
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            
+            // Format as YYYY-MM-DD HH:MM:SS
+            let formattedDate = now.toLocaleString('en-CA', options)
+                .replace(/(\d+)\/(\d+)\/(\d+), (\d+):(\d+):(\d+)/, '$3-$1-$2 $4:$5:$6');
+            
+            document.getElementById('current-datetime').textContent = formattedDate;
+        }
+        
+        // Toggle Translate Dropdown
+        document.getElementById("translate-button").addEventListener("click", function () {
+            const dropdown = document.getElementById("translate-dropdown");
+            dropdown.style.display = 
+                dropdown.style.display === "none" || dropdown.style.display === "" 
+                    ? "block" 
+                    : "none";
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const container = document.getElementById('translate-container');
+            if (container && !container.contains(event.target)) {
+                document.getElementById('translate-dropdown').style.display = 'none';
+            }
+        });
+
+        // Load Google Translate Script
+        function loadGoogleTranslateScript() {
+            const script = document.createElement("script");
+            script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            script.type = "text/javascript";
+            document.body.appendChild(script);
+        }
+
+        // Initialize Google Translate Element
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: "en",
+                    includedLanguages: "as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,en",
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                    autoDisplay: false,
+                },
+                "google_translate_element"
+            );
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGoogleTranslateScript();
+            // Set current date/time on load
+            // We don't update it here since you're using a server-provided timestamp
+            // setInterval(updateDateTime, 60000); // Uncomment to have it update every minute
+            
+            // Fix for Canvas toBlob compatibility
+            if (!HTMLCanvasElement.prototype.toBlob) {
+                HTMLCanvasElement.prototype.toBlob = function(callback, type, quality) {
+                    const dataURL = this.toDataURL(type, quality);
+                    const binaryString = atob(dataURL.split(',')[1]);
+                    const length = binaryString.length;
+                    const data = new Uint8Array(length);
+                    
+                    for (let i = 0; i < length; i++) {
+                        data[i] = binaryString.charCodeAt(i);
+                    }
+                    
+                    callback(new Blob([data], {type: type || 'image/png'}));
+                };
+            }
+        });
+    </script>
+</body>
+</html>

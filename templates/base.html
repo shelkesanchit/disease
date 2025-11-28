@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Personal Farm Planner for Grape Cultivation{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Animation keyframes */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(39, 174, 96, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(39, 174, 96, 0);
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* Navbar styling */
+        .navbar {
+            animation: fadeInDown 0.8s;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+            transition: all 0.3s ease;
+            padding: 15px 0;
+            background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar-brand i {
+            animation: pulse 2s infinite;
+            padding: 10px;
+            border-radius: 50%;
+            color: #f1f8e9;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin-right: 10px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+            width: 40px;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            padding: 8px 16px !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 6px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff !important;
+            transform: translateY(-2px);
+        }
+        
+        .nav-link:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background-color: #f1c40f;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .nav-link:hover:before {
+            width: 80%;
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            animation: fadeInDown 0.3s;
+        }
+        
+        .dropdown-item {
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(39, 174, 96, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .dropdown-divider {
+            margin: 0.5rem 0;
+            border-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Footer styling */
+        .footer {
+            background: linear-gradient(135deg, #f5f9ff 0%, #eaf7ee 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            padding: 60px 0 30px;
+            position: relative;
+            border-top: 1px solid rgba(39, 174, 96, 0.1);
+        }
+        
+        .footer:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #27ae60, #2ecc71, #27ae60);
+            background-size: 200% 200%;
+            animation: gradientShift 5s ease infinite;
+        }
+        
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-brand i {
+            font-size: 2rem;
+            color: #27ae60;
+            margin-right: 10px;
+        }
+        
+        .footer h5 {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .footer h5:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .footer h5:hover:after {
+            width: 100%;
+        }
+        
+        .footer-links {
+            padding-left: 0;
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: #5d6778;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 0;
+            display: inline-block;
+        }
+        
+        .footer-links a:before {
+            content: '→';
+            opacity: 0;
+            margin-right: 5px;
+            transform: translateX(-8px);
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #27ae60;
+            padding-left: 18px;
+        }
+        
+        .footer-links a:hover:before {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .contact-info i {
+            width: 35px;
+            height: 35px;
+            background-color: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-info:hover i {
+            transform: scale(1.15);
+            background-color: #27ae60;
+            color: white;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .contact-text {
+            line-height: 1.4;
+        }
+        
+        .contact-text span {
+            display: block;
+            color: #5d6778;
+            font-size: 0.9rem;
+        }
+        
+        .footer-bottom {
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .social-links a {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            transform: translateY(-3px);
+            background-color: #27ae60;
+            color: white;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        /* Translation component styling */
+        #translate-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        #translate-button {
+            padding: 10px;
+            background-color: #2d457e;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        #translate-button.active-translation {
+            background-color: #1a8754;
+        }
+        
+        #translate-dropdown {
+            display: none;
+            max-height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-seedling"></i>Grape Farm Planner
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    
+                    {% if session.get('user_id') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i> My Account
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('notifications') }}"><i class="fas fa-bell me-2"></i>Notifications</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('select_consultant') }}"><i class="fas fa-user-md me-2"></i>Select Consultant</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
+                    {% elif session.get('consultant_id') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('consultant_dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-md me-1"></i> Consultant Account
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('consultant_dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('consultant_profile') }}"><i class="fas fa-user-circle me-2"></i>My Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt me-1"></i> Sign In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('signup') }}"><i class="fas fa-user-plus me-1"></i> Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <div class="footer-brand">
+                        <i class="fas fa-seedling"></i>
+                        <h5 class="mb-0">Grape Farm Planner</h5>
+                    </div>
+                    <p class="text-muted mb-4">A comprehensive solution for grape farmers to plan, manage, and optimize their vineyard operations with precision and care.</p>
+                    
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        {% if session.get('user_id') %}
+                            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('login') }}">Sign In</a></li>
+                            <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5>Resources</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Grape Varieties Guide</a></li>
+                        <li><a href="#">Seasonal Planning Tips</a></li>
+                        <li><a href="#">Pest Management</a></li>
+                        <li><a href="#">Climate Adaptation</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <h5>Contact Us</h5>
+                    <div class="contact-info">
+                        <i class="fas fa-envelope"></i>
+                        <div class="contact-text">
+                            <span>Email Us At</span>
+                            support@grapefarmer.com
+                        </div>
+                    </div>
+                    <div class="contact-info">
+                        <i class="fas fa-phone"></i>
+                        <div class="contact-text">
+                            <span>Call Us At</span>
+                            +1 (123) 456-7890
+                        </div>
+                    </div>
+                    <div class="contact-info">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="contact-text">
+                            <span>Visit Our Office</span>
+                            Vineyard Avenue, Wine Valley
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row footer-bottom">
+                <div class="col-md-12 text-center">
+                    <p class="mb-0">&copy; {{ now.year }} Grape Farm Planner. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Translation Component -->
+    <div id="translate-container">
+        <button id="translate-button">
+            🌐 <span id="translate-button-text">Translate</span>
+        </button>
+        <!-- Scrollable Translate Dropdown -->
+        <div id="translate-dropdown">
+            <div id="google_translate_element"></div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Translation Scripts -->
+    <script>
+        // Track the current language
+        let currentLanguage = 'en';
+        
+        // Toggle Translate Dropdown
+        document
+            .getElementById("translate-button")
+            .addEventListener("click", function () {
+                const dropdown = document.getElementById("translate-dropdown");
+                dropdown.style.display =
+                    dropdown.style.display === "none" || dropdown.style.display === ""
+                    ? "block"
+                    : "none";
+            });
+        
+        // Load Google Translate Script Dynamically
+        function loadGoogleTranslateScript() {
+            const script = document.createElement("script");
+            script.src =
+            "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            script.type = "text/javascript";
+            document.body.appendChild(script);
+        }
+        
+        // Initialize Google Translate Element
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: "en", // Default page language
+                    includedLanguages: `
+                        as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+                        en
+                    `,
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                    autoDisplay: false,
+                    gaTrack: true,
+                    gaId: 'UA-XXXXX-X', // Replace with your Google Analytics ID if needed
+                },
+                "google_translate_element"
+            );
+            
+            // Add event listener for language change
+            if (typeof google !== 'undefined' && google.translate) {
+                // Wait for the translate widget to load
+                setTimeout(function() {
+                    const translateSelectElement = document.querySelector('.goog-te-combo');
+                    if (translateSelectElement) {
+                        translateSelectElement.addEventListener('change', function() {
+                            currentLanguage = this.value;
+                            console.log('Language changed to: ' + currentLanguage);
+                            
+                            // Update UI for selected language
+                            updateUIForLanguage(currentLanguage);
+                            
+                            // Store language preference in localStorage for persistence across pages
+                            localStorage.setItem('preferredLanguage', currentLanguage);
+                            
+                            // Close dropdown after selection (optional)
+                            setTimeout(function() {
+                                document.getElementById("translate-dropdown").style.display = "none";
+                            }, 1000);
+                        });
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Function to update UI elements based on the selected language
+        function updateUIForLanguage(lang) {
+            // Update the translate button appearance
+            const translateButton = document.getElementById('translate-button');
+            const translateButtonText = document.getElementById('translate-button-text');
+            
+            if (lang && lang !== 'en') {
+                translateButton.classList.add('active-translation');
+                translateButton.style.backgroundColor = '#1a8754'; // Change to green when active
+                translateButtonText.textContent = 'Translated';
+            } else {
+                translateButton.classList.remove('active-translation');
+                translateButton.style.backgroundColor = '#2d457e'; // Revert to original color
+                translateButtonText.textContent = 'Translate';
+            }
+        }
+        
+        // Function to get the current language
+        function getCurrentLanguage() {
+            return currentLanguage;
+        }
+        
+        // Ensure proper translation of dynamically loaded content
+        function translateDynamicContent() {
+            if (typeof google !== 'undefined' && google.translate && 
+                google.translate.TranslateElement && 
+                currentLanguage !== 'en') {
+                
+                // Force retranslation of the page
+                const translateElement = google.translate.TranslateElement.getInstance();
+                if (translateElement) {
+                    translateElement.update();
+                }
+            }
+        }
+        
+        // Add event listener for dynamic content changes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Monitor for content changes in the main container
+            const targetNode = document.querySelector('main');
+            if (targetNode) {
+                const observer = new MutationObserver(function(mutations) {
+                    translateDynamicContent();
+                });
+                
+                observer.observe(targetNode, { 
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            }
+            
+            // Check if user has a preferred language stored
+            const savedLanguage = localStorage.getItem('preferredLanguage');
+            if (savedLanguage && savedLanguage !== 'en') {
+                // Wait for Google Translate to initialize before setting language
+                const checkGoogleTranslate = setInterval(function() {
+                    if (typeof google !== 'undefined' && google.translate && 
+                        google.translate.TranslateElement) {
+                        
+                        const translateSelectElement = document.querySelector('.goog-te-combo');
+                        if (translateSelectElement) {
+                            translateSelectElement.value = savedLanguage;
+                            translateSelectElement.dispatchEvent(new Event('change'));
+                            clearInterval(checkGoogleTranslate);
+                        }
+                    }
+                }, 500);
+                
+                // Set timeout to prevent infinite checking
+                setTimeout(function() {
+                    clearInterval(checkGoogleTranslate);
+                }, 10000);
+            }
+        });
+        
+        // Monitor for AJAX-loaded content and flash messages
+        $(document).ajaxComplete(function() {
+            translateDynamicContent();
+        });
+        
+        // Initialize translation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGoogleTranslateScript();
+        });
+        
+        // Add a helper function for child pages to access translation functionality
+        window.translateHelper = {
+            getCurrentLanguage: getCurrentLanguage,
+            translateContent: translateDynamicContent,
+            switchLanguage: function(languageCode) {
+                const translateSelectElement = document.querySelector('.goog-te-combo');
+                if (translateSelectElement) {
+                    translateSelectElement.value = languageCode;
+                    translateSelectElement.dispatchEvent(new Event('change'));
+                }
+            }
+        };
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

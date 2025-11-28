@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Farmer Details - Consultant View{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-xl-2 col-lg-3 col-md-4 d-md-block sidebar bg-light pt-3 pb-5 border-end" style="min-height: 100vh;">
+            <div class="text-center mb-4">
+                <div class="avatar bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2.5rem;">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h5 class="mb-0">{{ consultant.name }}</h5>
+                <p class="text-muted small">{{ consultant.location }}</p>
+            </div>
+            <div class="px-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">Navigation</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('consultant_dashboard') }}">
+                            <i class="fas fa-th-large me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('consultant_profile') }}">
+                            <i class="fas fa-user-circle me-2"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-xl-10 col-lg-9 col-md-8 ms-sm-auto px-md-4 py-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('consultant_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ farmer.name }}</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2"><i class="fas fa-user-alt me-2"></i>{{ farmer.name }}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="mailto:{{ farmer.email }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-envelope me-1"></i> Contact Farmer
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farmer Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Farmer Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="fw-bold mb-1">Name:</p>
+                            <p>{{ farmer.name }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="fw-bold mb-1">Location:</p>
+                            <p>{{ farmer.location }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="fw-bold mb-1">Contact:</p>
+                            <p><i class="fas fa-envelope me-1"></i> {{ farmer.email }}<br>
+                            <i class="fas fa-phone me-1"></i> {{ farmer.phone }}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="fw-bold mb-1">Preferred Grape:</p>
+                            <p>{{ farmer.preferred_grape }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="fw-bold mb-1">Joined:</p>
+                            <p>{{ farmer.created_at.strftime('%B %d, %Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farms List -->
+            <h4 class="mb-3">Farms</h4>
+            <div class="card">
+                <div class="card-body">
+                    {% if farms %}
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        {% for farm in farms %}
+                        <div class="col">
+                            <div class="card h-100 border">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ farm.farm_name }}</h5>
+                                    <p class="card-text">
+                                        <span class="badge bg-primary me-2">{{ farm.grape_variety }}</span>
+                                        <span class="badge bg-secondary">{{ farm.length }} x {{ farm.width }} m</span>
+                                    </p>
+                                    <ul class="list-group list-group-flush mb-3">
+                                        <li class="list-group-item bg-light py-2">
+                                            <small class="text-muted">Plant Spacing:</small>
+                                            <span class="d-block">{{ farm.plant_spacing.width }} x {{ farm.plant_spacing.length }} meters</span>
+                                        </li>
+                                        <li class="list-group-item bg-light py-2">
+                                            <small class="text-muted">Created:</small>
+                                            <span class="d-block">{{ farm.created_at.strftime('%B %d, %Y') }}</span>
+                                        </li>
+                                    </ul>
+                                    <a href="{{ url_for('consultant_view_farm', farm_id=farm._id) }}" class="btn btn-primary">
+                                        <i class="fas fa-eye me-1"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>This farmer hasn't created any farms yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

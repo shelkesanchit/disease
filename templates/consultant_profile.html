@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Consultant Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-xl-2 col-lg-3 col-md-4 d-md-block sidebar bg-light pt-3 pb-5 border-end" style="min-height: 100vh;">
+            <div class="text-center mb-4">
+                <div class="avatar bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2.5rem;">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h5 class="mb-0">{{ consultant.name }}</h5>
+                <p class="text-muted small">{{ consultant.location }}</p>
+            </div>
+            <div class="px-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">Navigation</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('consultant_dashboard') }}">
+                            <i class="fas fa-th-large me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('consultant_profile') }}">
+                            <i class="fas fa-user-circle me-2"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-xl-10 col-lg-9 col-md-8 ms-sm-auto px-md-4 py-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('consultant_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Profile</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2"><i class="fas fa-user-circle me-2"></i>My Profile</h1>
+            </div>
+
+            <!-- Profile Information Card -->
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">Profile Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <p class="fw-bold mb-1">Name:</p>
+                                    <p>{{ consultant.name }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="fw-bold mb-1">Email:</p>
+                                    <p>{{ consultant.email }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="fw-bold mb-1">Phone:</p>
+                                    <p>{{ consultant.phone }}</p>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <p class="fw-bold mb-1">Location:</p>
+                                    <p>{{ consultant.location }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="fw-bold mb-1">Specialization:</p>
+                                    <p>{{ consultant.specialization }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="fw-bold mb-1">Experience:</p>
+                                    <p>{{ consultant.experience }} years</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p class="fw-bold mb-1">Joined:</p>
+                                    <p>{{ consultant.created_at.strftime('%B %d, %Y') }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="fw-bold mb-1">Last Login:</p>
+                                    <p>{{ consultant.last_login.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-end">
+                                <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                                    <i class="fas fa-edit me-1"></i> Edit Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Account Security</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6 class="fw-bold">Password</h6>
+                                <p class="text-muted small">Last changed: Not available</p>
+                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                    <i class="fas fa-key me-1"></i> Change Password
+                                </button>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold">Account Status</h6>
+                                <span class="badge bg-success mb-2">Active</span>
+                                <p class="text-muted small">Your account is in good standing.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('update_consultant_profile') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ consultant.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ consultant.phone }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" value="{{ consultant.location }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="specialization" class="form-label">Specialization</label>
+                        <input type="text" class="form-control" id="specialization" name="specialization" value="{{ consultant.specialization }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="experience" class="form-label">Experience (years)</label>
+                        <input type="number" class="form-control" id="experience" name="experience" value="{{ consultant.experience }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('change_consultant_password') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                        <small class="text-muted">Password must be at least 8 characters long.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password validation
+    const newPassword = document.getElementById('new_password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    function validatePassword() {
+        if (newPassword.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords don't match");
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+    
+    if (newPassword && confirmPassword) {
+        newPassword.addEventListener('change', validatePassword);
+        confirmPassword.addEventListener('keyup', validatePassword);
+    }
+});
+</script>
+{% endblock %} 

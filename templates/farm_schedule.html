@@ -1,0 +1,457 @@
+{% extends 'base.html' %}
+
+{% block title %}Farming Schedule - {{ farm.farm_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('farm_details', farm_id=farm._id) }}">{{ farm.farm_name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Farming Schedule</li>
+                </ol>
+            </nav>
+            <h2 class="mb-3">Farming Schedule</h2>
+            <p class="text-muted">Set your planting date to generate a comprehensive schedule for your grape cultivation.</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">{% if schedule %}Update{% else %}Create{% endif %} Farming Schedule</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('farm_schedule', farm_id=farm._id) }}">
+                        <div class="mb-4">
+                            <label for="planting_date" class="form-label">Planting Date</label>
+                            <input type="date" class="form-control" id="planting_date" name="planting_date" 
+                                  required 
+                                  {% if schedule %}value="{{ schedule.planting_date.strftime('%Y-%m-%d') }}"{% endif %}>
+                            <small class="text-muted">
+                                Choose the date when you plan to (or have already) plant your grape vines.
+                            </small>
+                        </div>
+                        
+                        <div class="alert alert-info" role="alert">
+                            <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Important Information</h5>
+                            <p>Setting the planting date will generate a comprehensive 3-year farming plan that includes:</p>
+                            <ul>
+                                <li>Watering schedule based on growth stages</li>
+                                <li>Pruning and training timeline</li>
+                                <li>Fertilization recommendations</li>
+                                <li>Pest and disease control measures</li>
+                                <li>Harvesting period projections</li>
+                            </ul>
+                            <p class="mb-0">
+                                This schedule is optimized for <strong>{{ farm.grape_variety }}</strong> grapes and can be adjusted later if needed.
+                            </p>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('farm_details', farm_id=farm._id) }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if schedule %}Update{% else %}Generate{% endif %} Schedule
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if schedule %}
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Current Schedule Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h6 class="mb-1">Planting Date</h6>
+                                <p class="mb-0 text-primary fw-bold">{{ schedule.planting_date.strftime('%B %d, %Y') }}</p>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Full Production By</h6>
+                                <p class="mb-0 text-primary fw-bold">{{ schedule.end_date.strftime('%B %Y') }}</p>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Total Tasks</h6>
+                                <p class="mb-0 text-primary fw-bold">{{ schedule.tasks|length }}</p>
+                            </div>
+                        </div>
+                        
+                        <h6 class="mb-3">Schedule Progress</h6>
+                        {% set completed_tasks = schedule.tasks|selectattr('status', 'equalto', 'completed')|list|length %}
+                        {% set progress_percentage = (completed_tasks / schedule.tasks|length * 100)|round|int if schedule.tasks|length > 0 else 0 %}
+                        
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{ progress_percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress_percentage }}%">{{ progress_percentage }}%</div>
+                        </div>
+                        <p class="text-muted small">{{ completed_tasks }} of {{ schedule.tasks|length }} tasks completed</p>
+                        
+                        <h6 class="mb-3 mt-4">Key Milestones</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Milestone</th>
+                                        <th>Expected Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Planting Day</td>
+                                        <td>{{ schedule.planting_date.strftime('%b %d, %Y') }}</td>
+                                        <td>
+                                            {% set planting_day_task = schedule.tasks|selectattr('title', 'equalto', 'Planting Day')|first %}
+                                            {% if planting_day_task and planting_day_task.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>First Pruning</td>
+                                        {% set first_pruning_task = schedule.tasks|selectattr('category', 'equalto', 'prune')|first %}
+                                        <td>
+                                            {% if first_pruning_task %}
+                                                {{ first_pruning_task.start_date }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if first_pruning_task and first_pruning_task.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>First Small Harvest</td>
+                                        {% set y2_harvest_task = schedule.tasks|selectattr('title', 'equalto', 'Year 2 - First Small Harvest')|first %}
+                                        <td>
+                                            {% if y2_harvest_task %}
+                                                {{ y2_harvest_task.start_date }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if y2_harvest_task and y2_harvest_task.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Full Production</td>
+                                        {% set y3_harvest_task = schedule.tasks|selectattr('title', 'equalto', 'Year 3 - First Full Harvest')|first %}
+                                        <td>
+                                            {% if y3_harvest_task %}
+                                                {{ y3_harvest_task.start_date }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if y3_harvest_task and y3_harvest_task.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Recommended Planting Times</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Optimal planting periods for {{ farm.grape_variety }} in your region:</p>
+                    
+                    <div class="mb-3">
+                        <h6>Spring Planting</h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-success me-2">Optimal</span>
+                            <span>Late February - Early April</span>
+                        </div>
+                        <small class="text-muted">Best for most regions with mild spring temperatures</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Fall/Winter Planting</h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-warning text-dark me-2">Alternative</span>
+                            <span>November - December</span>
+                        </div>
+                        <small class="text-muted">For regions with mild winters and no harsh frost</small>
+                    </div>
+                    
+                    <div class="alert alert-warning" role="alert">
+                        <small>
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Avoid planting during extreme temperature periods or heavy rainy seasons.
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Grape Variety Info</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-2">{{ farm.grape_variety }}</h6>
+                    
+                    <!-- This would typically come from the grape varieties collection -->
+                    {% set variety_info = {
+                        'Thompson Seedless': {
+                            'type': 'Table',
+                            'growing_period': '110-130 days',
+                            'climate': 'Warm, dry',
+                            'resistance': 'Medium'
+                        },
+                        'Flame Seedless': {
+                            'type': 'Table',
+                            'growing_period': '100-120 days',
+                            'climate': 'Hot, dry',
+                            'resistance': 'Medium'
+                        },
+                        'Crimson Seedless': {
+                            'type': 'Table',
+                            'growing_period': '120-140 days',
+                            'climate': 'Warm, moderate humidity',
+                            'resistance': 'Medium-High'
+                        },
+                        'Concord': {
+                            'type': 'Wine/Juice',
+                            'growing_period': '160-180 days',
+                            'climate': 'Cool to moderate',
+                            'resistance': 'High'
+                        },
+                        'Moon Drops': {
+                            'type': 'Table',
+                            'growing_period': '110-130 days',
+                            'climate': 'Moderate',
+                            'resistance': 'Medium'
+                        },
+                        'Black Corinth': {
+                            'type': 'Table/Drying',
+                            'growing_period': '90-110 days',
+                            'climate': 'Mediterranean',
+                            'resistance': 'Medium'
+                        },
+                        'Red Globe': {
+                            'type': 'Table',
+                            'growing_period': '140-160 days',
+                            'climate': 'Hot, dry',
+                            'resistance': 'Medium-Low'
+                        },
+                        'Autumn Royal': {
+                            'type': 'Table',
+                            'growing_period': '130-150 days',
+                            'climate': 'Warm to hot',
+                            'resistance': 'Medium'
+                        },
+                        'Sultana': {
+                            'type': 'Table/Drying',
+                            'growing_period': '110-130 days',
+                            'climate': 'Hot, dry',
+                            'resistance': 'Low'
+                        }
+                    } %}
+                    
+                    {% set info = variety_info.get(farm.grape_variety, {
+                        'type': 'Table',
+                        'growing_period': '120-150 days',
+                        'climate': 'Moderate',
+                        'resistance': 'Medium'
+                    }) %}
+                    
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted">Type</td>
+                                <td>{{ info.type }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Growing Period</td>
+                                <td>{{ info.growing_period }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Climate Preference</td>
+                                <td>{{ info.climate }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Disease Resistance</td>
+                                <td>{{ info.resistance }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-2">Special Care Notes</h6>
+                    <ul class="mb-0">
+                        {% if farm.grape_variety == 'Thompson Seedless' %}
+                            <li>Requires regular thinning for larger berries</li>
+                            <li>Susceptible to powdery mildew</li>
+                        {% elif farm.grape_variety == 'Flame Seedless' %}
+                            <li>Needs adequate irrigation during fruit development</li>
+                            <li>Benefits from GA3 application for berry sizing</li>
+                        {% elif farm.grape_variety == 'Crimson Seedless' %}
+                            <li>Requires special attention to achieve proper color</li>
+                            <li>Higher potassium requirement during ripening</li>
+                        {% elif farm.grape_variety == 'Concord' %}
+                            <li>Very winter hardy but needs winter chill hours</li>
+                            <li>Acid content makes it ideal for juice/jelly</li>
+                        {% else %}
+                            <li>Ensure proper canopy management for air circulation</li>
+                            <li>Regular monitoring for pests and diseases</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Translation Container -->
+<div id="translate-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999">
+  <button id="translate-button" style="
+    padding: 12px 20px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 30px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  ">
+    <i class="fas fa-globe"></i> Translate
+  </button>
+  <!-- Scrollable Translate Dropdown -->
+  <div id="translate-dropdown" style="
+    display: none;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    background: white;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 10px;
+    width: 280px;
+  ">
+    <div id="google_translate_element"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Date validation - restrict past dates if no schedule exists yet
+    var hasSchedule = JSON.parse("{{ 'true' if schedule else 'false' }}");
+    
+    if (!hasSchedule) {
+        const plantingDateInput = document.getElementById('planting_date');
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        plantingDateInput.setAttribute('min', formattedDate);
+    }
+    
+    // Toggle Translate Dropdown
+    document.getElementById("translate-button").addEventListener("click", function (e) {
+        e.stopPropagation();
+        const dropdown = document.getElementById("translate-dropdown");
+        dropdown.style.display =
+            dropdown.style.display === "none" || dropdown.style.display === ""
+                ? "block"
+                : "none";
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (e) {
+        const dropdown = document.getElementById("translate-dropdown");
+        const translateButton = document.getElementById("translate-button");
+        if (dropdown && !dropdown.contains(e.target) && !translateButton.contains(e.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+
+    // Add hover effect to translate button
+    const translateButton = document.getElementById("translate-button");
+    translateButton.addEventListener("mouseover", function() {
+        this.style.backgroundColor = "#27ae60";
+        this.style.transform = "translateY(-3px)";
+        this.style.boxShadow = "0 5px 15px rgba(0, 0, 0, 0.1)";
+    });
+    
+    translateButton.addEventListener("mouseout", function() {
+        this.style.backgroundColor = "#2ecc71";
+        this.style.transform = "translateY(0)";
+        this.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
+    });
+
+    // Load Google Translate Script Dynamically
+    loadGoogleTranslateScript();
+    
+    // Update date and time
+    document.getElementById("current-datetime").textContent = "2025-04-14 08:21:34";
+    document.getElementById("user-login").textContent = "shelkesanchit632003";
+});
+
+// Load Google Translate Script Dynamically
+function loadGoogleTranslateScript() {
+    const script = document.createElement("script");
+    script.src =
+        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    script.type = "text/javascript";
+    document.body.appendChild(script);
+}
+
+// Initialize Google Translate Element
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+        {
+            pageLanguage: "en", // Default page language
+            includedLanguages: "as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,en",
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false,
+        },
+        "google_translate_element"
+    );
+}
+</script>
+
+<!-- Add current date time and user login display -->
+<div id="user-info" style="position: fixed; bottom: 20px; left: 20px; font-size: 12px; color: #666; z-index: 100;">
+    <div>Current Date and Time (UTC): <span id="current-datetime">2025-04-14 08:21:34</span></div>
+    <div>Current User's Login: <span id="user-login">shelkesanchit632003</span></div>
+</div>
+{% endblock %}

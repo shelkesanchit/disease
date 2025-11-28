@@ -1,0 +1,937 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Personal Farm Planner{% endblock %}
+
+{% block styles %}
+<style>
+    /* Existing styles remain the same */
+    .weather-card {
+        background: linear-gradient(135deg, #145a32 0%, #1e8449 100%);
+        color: white;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .weather-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        opacity: 0.5;
+        transform: rotate(30deg);
+        pointer-events: none;
+    }
+    
+    .alert-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        font-size: 0.7rem;
+    }
+    
+    .seasonal-card {
+        background: linear-gradient(135deg, #9b59b6 0%, #3498db 100%);
+        color: white;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .seasonal-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        opacity: 0.5;
+        transform: rotate(-30deg);
+        pointer-events: none;
+    }
+    
+    .temperature-display {
+        color: #f39c12;
+        text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+        font-weight: 700;
+        font-size: 3.5rem;
+        margin-bottom: 0;
+        transition: all 0.3s ease;
+        transform: perspective(1000px);
+    }
+    
+    .temperature-display:hover {
+        transform: perspective(1000px) scale(1.1) translateY(-5px);
+        color: #f1c40f;
+    }
+    
+    .farm-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .farm-card:hover {
+        transform: translateY(-10px) perspective(800px) rotateX(2deg);
+        box-shadow: 0 15px 30px rgba(30, 132, 73, 0.2);
+    }
+    
+    .task-icon {
+        width: 46px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: #f1f8e9;
+        color: #1e8449;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .task-icon:hover {
+        transform: rotate(10deg) scale(1.1);
+        background-color: #1e8449;
+        color: white;
+    }
+    
+    .animation-container-dashboard {
+        height: 300px;
+        margin-bottom: 2rem;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        transition: all 0.5s ease;
+    }
+    
+    .animation-container-dashboard:hover {
+        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        transform: translateY(-15px);
+    }
+    
+    .welcome-card {
+        background: linear-gradient(120deg, #f1f8e9, white);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .welcome-card:hover {
+        box-shadow: 0 12px 30px rgba(30, 132, 73, 0.15);
+    }
+    
+    .badge.bg-success {
+        background-color: #27ae60 !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding: 0.5em 0.75em;
+    }
+    
+    .card-header {
+        border-bottom: none;
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .btn-outline-primary {
+        border-width: 2px;
+    }
+    /* New Translation Styles */
+    #translate-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    #translate-button {
+        padding: 10px;
+        background-color: #2d457e;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    #translate-dropdown {
+        display: none;
+        max-height: 300px;
+        overflow-y: scroll;
+        border: 1px solid #ccc;
+        background: #fff;
+        padding: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        position: absolute;
+        right: 0;
+        width: 250px;
+    }
+
+    /* Ensure Google Translate elements are styled appropriately */
+    .goog-te-menu-frame {
+        max-height: 250px !important;
+        overflow-y: scroll !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Existing content remains the same -->
+<div class="container">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 welcome-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h1 class="display-6 mb-1" style="color: #1e8449;">Welcome, {{ user.name }}!</h1>
+                            <p class="text-muted mb-0">Let's plan your grape farming journey today.</p>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="dropdown me-3 position-relative">
+                                <button class="btn btn-light position-relative" type="button" id="alertsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-bell"></i>
+                                    {% if alerts|length > 0 %}
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger alert-badge">
+                                            {{ alerts|length }}
+                                        </span>
+                                    {% endif %}
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="alertsDropdown" style="width: 300px;">
+                                    <li><h6 class="dropdown-header">Notifications</h6></li>
+                                    {% if alerts|length > 0 %}
+                                        {% for alert in alerts[:5] %}
+                                            <li>
+                                                <a class="dropdown-item {% if not alert.is_read %}fw-bold{% endif %}" href="#" data-alert-id="{{ alert._id }}">
+                                                    <div class="d-flex align-items-start">
+                                                        <div class="me-2 mt-1">
+                                                            {% if alert.type == 'task' %}
+                                                                <i class="fas fa-tasks text-primary"></i>
+                                                            {% elif alert.type == 'task_completed' %}
+                                                                <i class="fas fa-check-circle text-success"></i>
+                                                            {% elif alert.type == 'task_reminder' %}
+                                                                <i class="fas fa-clock text-warning"></i>
+                                                            {% else %}
+                                                                <i class="fas fa-bell text-secondary"></i>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div>
+                                                            <small class="text-muted d-block">{{ alert.created_at.strftime('%b %d, %Y') }}</small>
+                                                            {{ alert.message }}
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            {% if not loop.last %}
+                                                <li><hr class="dropdown-divider"></li>
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        {% if alerts|length > 5 %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li class="text-center py-2">
+                                                <a href="{{ url_for('notifications') }}" class="btn btn-sm btn-outline-secondary">
+                                                    Show and manage all ({{ alerts|length }})
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li><a class="dropdown-item" href="#">No new notifications</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <a href="{{ url_for('new_farm') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i> Add New Farm
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D Farm Animation -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div id="farm-3d-animation" class="animation-container-dashboard"></div>
+        </div>
+    </div>
+
+    <!-- Dashboard Top Cards -->
+    <div class="row mb-4">
+        <!-- Weather Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100 weather-card">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Weather: {{ user.location }}</h5>
+                        <i class="fas fa-sync-alt cursor-pointer" id="refresh-weather" style="cursor: pointer; transition: all 0.3s ease;"></i>
+                    </div>
+                    
+                    {% if weather and weather.data %}
+                        <div class="d-flex align-items-center justify-content-center mb-3">
+                            {% if weather.data.weather and weather.data.weather[0] %}
+                                <img src="https://openweathermap.org/img/wn/{{ weather.data.weather[0].icon }}@2x.png" 
+                                     alt="{{ weather.data.weather[0].description }}" width="80" class="me-2">
+                            {% endif %}
+                            <div class="text-center">
+                                <h2 class="temperature-display">{{ weather.data.main.temp|round|int }}°C</h2>
+                                {% if weather.data.weather and weather.data.weather[0] %}
+                                    <p class="mb-0 text-white" style="font-size: 1.2rem; font-weight: 500;">{{ weather.data.weather[0].description|capitalize }}</p>
+                                {% endif %}
+                                <p class="text-white-50 mb-0" style="font-size: 0.9rem;">
+                                    Feels like: {{ weather.data.main.feels_like|round|int }}°C
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Additional Weather Details -->
+                        <div class="mt-3 mb-3">
+                            <div class="d-flex justify-content-between text-white-50">
+                                <small>Min: {{ weather.data.main.temp_min|round|int }}°C</small>
+                                <small>Max: {{ weather.data.main.temp_max|round|int }}°C</small>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-around text-white">
+                                <div class="text-center">
+                                    <i class="fas fa-tint mb-2" style="font-size: 1.2rem;"></i>
+                                    <p class="mb-0" style="font-weight: 600;">{{ weather.data.main.humidity }}%</p>
+                                    <small>Humidity</small>
+                                </div>
+                                <div class="text-center">
+                                    <i class="fas fa-wind mb-2" style="font-size: 1.2rem;"></i>
+                                    <p class="mb-0" style="font-weight: 600;">{{ weather.data.wind.speed }}</p>
+                                    <small>Wind (m/s)</small>
+                                </div>
+                                <div class="text-center">
+                                    <i class="fas fa-compress-arrows-alt mb-2" style="font-size: 1.2rem;"></i>
+                                    <p class="mb-0" style="font-weight: 600;">{{ weather.data.main.pressure }}</p>
+                                    <small>Pressure</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sunrise/Sunset & Visibility -->
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-around text-white">
+                                <div class="text-center">
+                                    <i class="fas fa-sun mb-2" style="font-size: 1.2rem; color: #f39c12;"></i>
+                                    <p class="mb-0" style="font-weight: 600;">{{ (weather.data.sys.sunrise + weather.data.timezone)|timestamp_to_time }}</p>
+                                    <small>Sunrise</small>
+                                </div>
+                                <div class="text-center">
+                                    <i class="fas fa-moon mb-2" style="font-size: 1.2rem; color: #f5f5f5;"></i>
+                                    <p class="mb-0" style="font-weight: 600;">{{ (weather.data.sys.sunset + weather.data.timezone)|timestamp_to_time }}</p>
+                                    <small>Sunset</small>
+                                </div>
+                                <div class="text-center">
+                                    <i class="fas fa-eye mb-2" style="font-size: 1.2rem;"></i>
+                                    <p class="mb-0" style="font-weight: 600;">{{ weather.data.visibility // 1000 }} km</p>
+                                    <small>Visibility</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Weather Farming Insights -->
+                        <div class="mt-4 p-2" style="background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-seedling me-2" style="color: #2ecc71;"></i>
+                                <h6 class="mb-0 text-white">Weather Impact on Farming</h6>
+                            </div>
+                            <p class="text-white-50 small mb-1">
+                                <span id="weather-farming-insight">Loading farming insights...</span>
+                            </p>
+                            <button id="get-farming-insights" class="btn btn-sm btn-outline-light mt-1" style="font-size: 0.7rem;">
+                                <i class="fas fa-sync-alt me-1"></i> Get Insights
+                            </button>
+                        </div>
+                        
+                        <p class="mt-3 text-white-50 small text-center">
+                            Last updated: {{ weather.timestamp.strftime('%b %d, %Y %H:%M') }}
+                        </p>
+                    {% else %}
+                        <p>Weather data not available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Farm Stats -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100" style="background: linear-gradient(135deg, #f8f9fa, #ffffff);">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4" style="color: #1e8449;">Farm Statistics</h5>
+                    <div class="text-center mb-4">
+                        <div style="background-color: rgba(30, 132, 73, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; transition: all 0.3s ease;">
+                            <span class="display-4 mb-0" style="color: #1e8449;">{{ farms|length }}</span>
+                        </div>
+                        <p class="text-muted" style="font-weight: 500;">Total Farms</p>
+                    </div>
+                    
+                    {% if farms|length > 0 %}
+                        <div class="d-flex justify-content-around text-center">
+                            <div>
+                                <div style="background-color: rgba(52, 152, 219, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; transition: all 0.3s ease;">
+                                    <i class="fas fa-ruler-combined" style="color: #3498db; font-size: 1.5rem;"></i>
+                                </div>
+                                <h4 class="mb-0" style="color: #3498db; font-weight: 600;">{{ (farms|sum(attribute='width') * farms|sum(attribute='length'))|round(2) }}</h4>
+                                <p class="text-muted small">Total Area (sq.m)</p>
+                            </div>
+                            <div>
+                                <div style="background-color: rgba(243, 156, 18, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; transition: all 0.3s ease;">
+                                    <i class="fas fa-seedling" style="color: #f39c12; font-size: 1.5rem;"></i>
+                                </div>
+                                <h4 class="mb-0" style="color: #f39c12; font-weight: 600;">{{ farms|map(attribute='grape_variety')|list|unique|list|length }}</h4>
+                                <p class="text-muted small">Varieties</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted">No farms added yet.</p>
+                        <div class="d-grid">
+                            <a href="{{ url_for('new_farm') }}" class="btn btn-outline-primary">
+                                Create Your First Farm
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seasonal Activities -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100 seasonal-card">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3">Seasonal Activities</h5>
+                    <div class="mb-3 p-2" style="background: rgba(255,255,255,0.1); border-radius: 8px;">
+                        <h6 class="text-white-50 mb-1">Current Phase:</h6>
+                        <p class="fw-bold mb-0" style="font-size: 1.2rem;">{{ activities.phase }}</p>
+                    </div>
+                    
+                    {% if activities.current %}
+                        <h6 class="text-white-50 mt-4 mb-2">Current Tasks:</h6>
+                        <ul class="mb-0 ps-3" style="list-style-type: none;">
+                            {% for task in activities.current %}
+                                <li class="mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle me-2" style="color: #2ecc71;"></i>
+                                        <span>{{ task }}</span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    
+                    {% if activities.upcoming %}
+                        <h6 class="text-white-50 mt-4 mb-2">Upcoming:</h6>
+                        <ul class="mb-0 ps-3" style="list-style-type: none;">
+                            {% for task in activities.upcoming %}
+                                <li class="mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock me-2" style="color: #f1c40f;"></i>
+                                        <span>{{ task }}</span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Farms Section -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">My Farms</h5>
+                        <a href="{{ url_for('new_farm') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i> Add New
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if farms|length > 0 %}
+                        <div class="row g-0">
+                            {% for farm in farms %}
+                                <div class="col-md-6 p-3">
+                                    <div class="card h-100 farm-card border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h5 class="card-title mb-1">{{ farm.farm_name }}</h5>
+                                                    <p class="text-muted mb-3">{{ farm.grape_variety }}</p>
+                                                </div>
+                                                <span class="badge bg-success">Active</span>
+                                            </div>
+                                            
+                                            <div class="row mb-3">
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="task-icon bg-light me-2">
+                                                            <i class="fas fa-ruler-combined text-primary"></i>
+                                                        </div>
+                                                        <div>
+                                                            <small class="text-muted d-block">Dimensions</small>
+                                                            <span>{{ farm.length }}m × {{ farm.width }}m</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="task-icon bg-light me-2">
+                                                            <i class="fas fa-calculator text-primary"></i>
+                                                        </div>
+                                                        <div>
+                                                            <small class="text-muted d-block">Area</small>
+                                                            <span>{{ (farm.length * farm.width)|round(1) }} sq.m</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="task-icon bg-light me-2">
+                                                            <i class="fas fa-arrows-alt-h text-primary"></i>
+                                                        </div>
+                                                        <div>
+                                                            <small class="text-muted d-block">Spacing</small>
+                                                            <span>{{ farm.plant_spacing.width }}m × {{ farm.plant_spacing.length }}m</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="task-icon bg-light me-2">
+                                                            <i class="fas fa-calendar-alt text-primary"></i>
+                                                        </div>
+                                                        <div>
+                                                            <small class="text-muted d-block">Created</small>
+                                                            <span>{{ farm.created_at.strftime('%b %d, %Y') }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-white border-top-0 text-end p-3">
+                                            <a href="{{ url_for('farm_details', farm_id=farm._id) }}" class="btn btn-sm btn-primary">
+                                                View Details
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-5 text-center">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1186/1186551.png" alt="No farms" width="100" class="mb-3 opacity-50">
+                            <h5>No Farms Added Yet</h5>
+                            <p class="text-muted">Start by adding your first farm to get customized recommendations.</p>
+                            <a href="{{ url_for('new_farm') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i> Add Your First Farm
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add Translation Container -->
+<div id="translate-container">
+    <button id="translate-button">🌐 Translate</button>
+    <div id="translate-dropdown">
+        <div id="google_translate_element"></div>
+    </div>
+</div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Existing scripts remain the same
+    const fetchWeatherByCoords = (lat, lon) => {
+        const weatherContainer = document.querySelector('.weather-card .card-body');
+        if (weatherContainer) {
+            weatherContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div><p class="text-light mt-2">Fetching weather data...</p></div>';
+            
+            console.log(`Fetching weather for coordinates: ${lat}, ${lon}`);
+            // Ensure coordinates are properly formatted as numbers
+            const formattedLat = parseFloat(lat).toFixed(6);
+            const formattedLon = parseFloat(lon).toFixed(6);
+            
+            fetch(`/api/weather?lat=${formattedLat}&lon=${formattedLon}`)
+                .then(response => {
+                    console.log(`Weather API response status: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`Weather service error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Weather data successfully fetched');
+                    // Reload the page to show updated weather
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                    weatherContainer.innerHTML = `
+                        <div class="alert alert-light" role="alert">
+                            <h5 class="card-title mb-3">Weather</h5>
+                            <p>Unable to fetch weather data: ${error.message}</p>
+                            <button class="btn btn-sm btn-light mt-2" id="retry-weather">
+                                <i class="fas fa-sync-alt me-1"></i> Retry
+                            </button>
+                        </div>
+                    `;
+                    
+                    document.getElementById('retry-weather').addEventListener('click', detectLocationAndFetchWeather);
+                });
+        }
+    };
+    
+    // Function to fetch weather using location name (fallback)
+    const fetchWeatherByLocation = () => {
+        const weatherContainer = document.querySelector('.weather-card .card-body');
+        if (weatherContainer) {
+            weatherContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div><p class="text-light mt-2">Fetching weather data...</p></div>';
+            
+            console.log(`Fetching weather for location: {{ user.location }}`);
+            
+            fetch(`/api/weather/{{ user.location | replace(' ', '%20') }}`)
+                .then(response => {
+                    console.log(`Weather API response status: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`Weather service error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Weather data successfully fetched');
+                    // Reload the page to show updated weather
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                    weatherContainer.innerHTML = `
+                        <div class="alert alert-light" role="alert">
+                            <h5 class="card-title mb-3">Weather: {{ user.location }}</h5>
+                            <p>Unable to fetch weather data: ${error.message}</p>
+                            <button class="btn btn-sm btn-light mt-2" id="retry-weather">
+                                <i class="fas fa-sync-alt me-1"></i> Retry
+                            </button>
+                        </div>
+                    `;
+                    
+                    document.getElementById('retry-weather').addEventListener('click', detectLocationAndFetchWeather);
+                });
+        }
+    };
+    
+    // Detect location and fetch weather
+    const detectLocationAndFetchWeather = () => {
+        const weatherContainer = document.querySelector('.weather-card .card-body');
+        if (weatherContainer) {
+            weatherContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div><p class="text-light mt-2">Detecting location...</p></div>';
+            
+            if (navigator.geolocation) {
+                console.log('Requesting geolocation permission...');
+                navigator.geolocation.getCurrentPosition(
+                    // Success callback
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        console.log(`Geolocation successful: ${lat}, ${lon}`);
+                        fetchWeatherByCoords(lat, lon);
+                    },
+                    // Error callback
+                    (error) => {
+                        console.error(`Geolocation error: (${error.code}) ${error.message}`);
+                        let errorMsg = '';
+                        
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg = 'Location permission denied';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg = 'Location information unavailable';
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg = 'Location request timed out';
+                                break;
+                            default:
+                                errorMsg = 'Unknown location error';
+                        }
+                        
+                        weatherContainer.innerHTML = `
+                            <div class="alert alert-warning" role="alert">
+                                <h5 class="card-title mb-3">Location Access</h5>
+                                <p>${errorMsg}. Using stored location instead.</p>
+                            </div>
+                        `;
+                        
+                        // Wait briefly to show the error before falling back
+                        setTimeout(() => {
+                            // Fall back to using stored location
+                            fetchWeatherByLocation();
+                        }, 2000);
+                    },
+                    // Options
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 30000
+                    }
+                );
+            } else {
+                // Geolocation not supported by browser
+                console.log('Geolocation not supported by browser');
+                weatherContainer.innerHTML = `
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="card-title mb-3">Location Access</h5>
+                        <p>Geolocation is not supported by your browser. Using stored location.</p>
+                    </div>
+                `;
+                
+                // Wait briefly to show the message before falling back
+                setTimeout(() => {
+                    // Fall back to using stored location
+                    fetchWeatherByLocation();
+                }, 2000);
+            }
+        }
+    };
+    
+    // Refresh weather data when button is clicked
+    const refreshWeatherBtn = document.getElementById('refresh-weather');
+    if (refreshWeatherBtn) {
+        refreshWeatherBtn.addEventListener('click', detectLocationAndFetchWeather);
+        refreshWeatherBtn.style.cursor = 'pointer'; // Ensure pointer cursor
+    }
+    
+    // Automatically fetch weather data if it's not available
+    var hasWeatherData = JSON.parse("{{ 'true' if weather and weather.data else 'false' }}");
+    if (!hasWeatherData) {
+        detectLocationAndFetchWeather();
+    }
+    
+    // Mark alerts as read
+    const alertDropdowns = document.querySelectorAll('#alertsDropdown + .dropdown-menu .dropdown-item');
+    alertDropdowns.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const alertId = this.getAttribute('data-alert-id');
+            
+            if (alertId) {
+                // First mark as read
+                fetch(`/api/alerts/${alertId}/read`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Then delete the alert
+                        return fetch(`/api/alerts/${alertId}/delete`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                    }
+                })
+                .then(response => {
+                    if (response && response.ok) {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        // Update the notification badge count
+                        const badge = document.querySelector('.alert-badge');
+                        if (badge) {
+                            const currentCount = parseInt(badge.textContent);
+                            if (currentCount > 1) {
+                                badge.textContent = currentCount - 1;
+                            } else {
+                                badge.remove();
+                            }
+                        }
+                        
+                        // Remove this item from the dropdown
+                        const parentLi = this.closest('li');
+                        const nextDivider = parentLi.nextElementSibling;
+                        
+                        if (nextDivider && nextDivider.tagName === 'LI' && nextDivider.querySelector('hr')) {
+                            nextDivider.remove();
+                        } else {
+                            const prevDivider = parentLi.previousElementSibling;
+                            if (prevDivider && prevDivider.tagName === 'LI' && prevDivider.querySelector('hr')) {
+                                prevDivider.remove();
+                            }
+                        }
+                        
+                        parentLi.remove();
+                        
+                        // If all notifications have been removed, update the dropdown
+                        const remainingItems = document.querySelectorAll('#alertsDropdown + .dropdown-menu .dropdown-item');
+                        if (remainingItems.length === 0) {
+                            document.querySelector('#alertsDropdown + .dropdown-menu').innerHTML = `
+                                <li><h6 class="dropdown-header">Notifications</h6></li>
+                                <li><a class="dropdown-item" href="#">No new notifications</a></li>
+                            `;
+                        }
+                    }
+                })
+                .catch(error => console.error('Error processing alert:', error));
+            }
+        });
+    });
+    
+    // Handle weather farming insights
+    const insightButton = document.getElementById('get-farming-insights');
+    const insightText = document.getElementById('weather-farming-insight');
+    
+    if (insightButton && insightText) {
+        // Set default text
+        insightText.textContent = "Click 'Get Insights' for farming recommendations based on current weather.";
+        
+        insightButton.addEventListener('click', function() {
+            // Update button to show loading state
+            const originalText = insightButton.innerHTML;
+            insightButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+            insightButton.disabled = true;
+            
+            // Fetch insights from API
+            fetch('/api/weather/insights')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch weather insights');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.insight) {
+                        // Update the insight text
+                        insightText.textContent = data.insight;
+                        
+                        // Add a subtle animation to highlight the new content
+                        insightText.style.backgroundColor = 'rgba(46, 204, 113, 0.2)';
+                        setTimeout(() => {
+                            insightText.style.backgroundColor = 'transparent';
+                            insightText.style.transition = 'background-color 1s ease';
+                        }, 100);
+                    } else if (data.error) {
+                        insightText.textContent = `Error: ${data.error}`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching weather insights:', error);
+                    insightText.textContent = "Could not retrieve farming insights. Please try again later.";
+                })
+                .finally(() => {
+                    // Restore button state
+                    insightButton.innerHTML = originalText;
+                    insightButton.disabled = false;
+                });
+        });
+    }
+    
+    // Check for pending tasks that need notifications
+    function checkPendingTasks() {
+        fetch('/api/pending-tasks')
+            .then(response => response.json())
+            .then(data => {
+                if (data.tasks && data.tasks.length > 0) {
+                    // Process tasks that are due soon
+                    const now = new Date();
+                    const threeDaysLater = new Date();
+                    threeDaysLater.setDate(now.getDate() + 3);
+                    
+                    data.tasks.forEach(task => {
+                        const dueDate = new Date(task.due_date);
+                        if (dueDate <= threeDaysLater && dueDate >= now) {
+                            console.log(`Task ${task.title} is due soon`);
+                            // The server will handle creating notifications for these tasks
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error checking pending tasks:', error));
+    }
+    
+    // Check pending tasks when page loads
+    checkPendingTasks();
+    
+    // Set interval to check for pending tasks periodically (every 12 hours)
+    setInterval(checkPendingTasks, 12 * 60 * 60 * 1000);
+});
+
+    // Translation Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Existing DOM-loaded scripts from before...
+
+        // Translation Toggle
+        const translateButton = document.getElementById('translate-button');
+        const translateDropdown = document.getElementById('translate-dropdown');
+
+        translateButton.addEventListener('click', function() {
+            translateDropdown.style.display = 
+                translateDropdown.style.display === 'none' || translateDropdown.style.display === '' 
+                ? 'block' 
+                : 'none';
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!translateButton.contains(event.target) && !translateDropdown.contains(event.target)) {
+                translateDropdown.style.display = 'none';
+            }
+        });
+
+        // Prevent dropdown from closing when clicking inside
+        translateDropdown.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+
+        // Google Translate Script Loader
+        function loadGoogleTranslateScript() {
+            const script = document.createElement('script');
+            script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+            script.type = 'text/javascript';
+            document.body.appendChild(script);
+        }
+
+        // Google Translate Element Initialization
+        window.googleTranslateElementInit = function() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en', // Default page language
+                includedLanguages: `
+                    as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+                    en
+                `,
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+
+            // Optional: Add custom styling to translate dropdown
+            const googleTranslateElement = document.getElementById('google_translate_element');
+            if (googleTranslateElement) {
+                googleTranslateElement.style.width = '100%';
+            }
+        };
+
+        // Load Google Translate Script
+        loadGoogleTranslateScript();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vineyard Grape Variety Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #4caf50;
+            --accent-color: #81c784;
+            --background-color: #f1f8e9;
+            --form-bg-color: rgba(255, 255, 255, 0.95);
+            --text-color: #2e3b2e;
+            --success-color: #388e3c;
+            --error-color: #c23934;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, var(--background-color) 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background-image: url('https://images.unsplash.com/photo-1564570439388-81849e302045?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        .animation-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .content-container {
+            position: relative;
+            z-index: 1;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        .main-container {
+            background-color: var(--form-bg-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(46, 125, 50, 0.2);
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .header-container {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            margin: -30px -30px 30px -30px;
+            padding: 40px 30px;
+            border-radius: 15px 15px 0 0;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 70%);
+            transform: rotate(30deg);
+            animation: shimmer 10s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header-container h1 {
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: slideInDown 1s ease-out;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            animation: bounceIn 1.2s ease-out;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border-radius: 50%;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+            z-index: 1;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, rgba(76, 175, 80, 0) 0%, rgba(76, 175, 80, 0.2) 50%, rgba(76, 175, 80, 0) 100%);
+            transform: rotate(30deg);
+            animation: shineEffect 3s infinite linear;
+        }
+
+        @keyframes shineEffect {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); }
+            80% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideInDown {
+            0% { transform: translateY(-50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .grape-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+            color: var(--accent-color);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .form-section {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+            animation: slideInRight 0.8s ease-out;
+            animation-fill-mode: both;
+        }
+
+        @keyframes slideInRight {
+            0% { transform: translateX(50px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .form-section:nth-child(even) {
+            animation: slideInLeft 0.8s ease-out;
+            animation-fill-mode: both;
+        }
+
+        @keyframes slideInLeft {
+            0% { transform: translateX(-50px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .form-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            border-color: var(--accent-color);
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100%);
+            transition: all 0.6s;
+        }
+
+        .btn:hover::after {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(46, 125, 50, 0.3);
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #388e3c, #2e7d32);
+            border: none;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(56, 142, 60, 0.3);
+            background: linear-gradient(135deg, #2e7d32, #388e3c);
+        }
+
+        .loader {
+            display: none;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--secondary-color);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 40px;
+            padding: 30px;
+            border-radius: 15px;
+            transition: all 0.5s ease;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success {
+            background: linear-gradient(135deg, rgba(56, 142, 60, 0.1), rgba(46, 125, 50, 0.1));
+            border: 1px solid rgba(56, 142, 60, 0.3);
+            color: var(--success-color);
+        }
+
+        .error {
+            background: linear-gradient(135deg, rgba(194, 57, 52, 0.1), rgba(155, 46, 42, 0.1));
+            border: 1px solid rgba(194, 57, 52, 0.3);
+            color: var(--error-color);
+        }
+
+        .icon-box {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success .icon-box {
+            background-color: rgba(56, 142, 60, 0.2);
+            color: var(--success-color);
+        }
+
+        .error .icon-box {
+            background-color: rgba(194, 57, 52, 0.2);
+            color: var(--error-color);
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 42px;
+            color: var(--primary-color);
+        }
+
+        .input-with-icon .form-control {
+            padding-left: 40px;
+        }
+
+        .card-3d-wrapper {
+            perspective: 1000px;
+        }
+
+        .location-btn-container {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .location-btn-container:hover {
+            transform: rotateY(10deg);
+        }
+
+        #resultContainer h3 {
+            color: inherit;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        #resultContent {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .result-highlight {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: block;
+            color: var(--primary-color);
+        }
+
+        .form-select {
+            border-radius: 10px;
+            padding: 12px 15px;
+            height: auto;
+        }
+
+        .description-text, .recommendation-text {
+            background-color: rgba(255, 255, 255, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            line-height: 1.7;
+            text-align: left;
+            border-left: 4px solid var(--accent-color);
+            margin-top: 10px;
+        }
+
+        .recommendation-text {
+            border-left-color: var(--primary-color);
+        }
+
+        .ai-loading {
+            position: relative;
+            padding-left: 30px;
+            font-style: italic;
+            color: var(--primary-color);
+            margin-top: 10px;
+        }
+
+        .ai-loading:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(76, 175, 80, 0.3);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: aiSpin 1s linear infinite;
+        }
+
+        @keyframes aiSpin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        .leaf-animation {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--accent-color);
+            opacity: 0.7;
+            border-radius: 0 50% 50% 50%;
+            transform: rotate(45deg);
+            pointer-events: none;
+            z-index: -1;
+            animation: falling 10s linear infinite;
+        }
+
+        @keyframes falling {
+            0% {
+                top: -10%;
+                transform: rotate(45deg) translateX(0);
+                opacity: 0.7;
+            }
+            50% {
+                transform: rotate(145deg) translateX(20px);
+            }
+            100% {
+                top: 110%;
+                transform: rotate(45deg) translateX(-20px);
+                opacity: 0;
+            }
+        }
+
+        /* Translation component styling */
+        #translate-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        #translate-button {
+            padding: 10px 15px;
+            background-color: #2d457e;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        #translate-button.active-translation {
+            background-color: var(--success-color);
+        }
+
+        #translate-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        #translate-dropdown {
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 15px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            margin-top: 10px;
+            width: 220px;
+        }
+
+        /* Custom styling for Google Translate element */
+        .goog-te-gadget {
+            font-family: 'Poppins', sans-serif !important;
+            color: var(--text-color) !important;
+        }
+
+        .goog-te-combo {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-top: 5px;
+            font-family: 'Poppins', sans-serif !important;
+        }
+
+        #google_translate_element div {
+            width: 100% !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 30px 20px;
+            }
+            
+            .form-section {
+                padding: 15px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+            }
+
+            .logo {
+                width: 80px;
+                height: 80px;
+            }
+
+            #translate-dropdown {
+                width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animation-container" id="animation-container"></div>
+    
+    <div class="content-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="main-container">
+                        <div class="header-container">
+                            <div class="logo-container">
+                                <div class="logo">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjNGNhZjUwIiBkPSJNMTAwLjggMzQxLjVjMTUuMy0xMi4xIDIzLjUtMzAgMzUuOC00NC40YTIwMSAyMDEgMCAwIDAgMzUuOS02NSA0OSA0OSAwIDAgMCA4LjctMTUuOUMyMDQgMTEzLjYgMTgzLjQgNDggMTM2IDQ4IDczLjMgNDggNTguNSAxNTQgNTguNSAyMTIuNmMwIDYwLjQgMzMuMyAxMjkgNDIuMyAxMjguOXptMzA3LjUgNDUuN2M3LjEtNi4yIDEwLjgtMTMuMyAxMy42LTIxLjMgOS40LTI3LjIgNy42LTU2LjMtMy40LTgyLjYtMS44LTQuMy0zLjctOS43LTYuNS0xMy4zLTQuNS02LTExLjktOC41LTE5LjgtOC41LTI4LjYgMC0yNS41IDM4LjktNDguMSA2NkMyODAgMzk5IDEzNiAzOTkgMTM2IDI1NmMwLTY1LjUgMzctMTEwLjggNTQuNi0xMjIuNSAxMS41LTcuNiAyMy45LTEwLjEgMzYuNi03LjggMTAuNyAxLjkgMjEuMSA3LjggMjkuNCAxNi40IDE0LjcgMTUuMiAyNyA0My4zIDE2LjUgNzEtOC4yIDIxLjgtMzMuMiAzNS42LTU0LjkgMzljLTcuNCAxLjItNDcuOC0yLjgtNDctMTYuNGE1NS41IDU1LjUgMCAwIDEgMy44LTE1LjJjNS44LTEzLjYgMTMuOC0yOC4xIDE2LjEtNDIuMSAxLjYtOS45LTIuNS0yMS42LTEyLjEtMjUuMS0xNC40LTUuNC00MS4xIDYuOC01NC4zIDMxLjggMCAwLTkgMTYuOC0yOC42IDExNS45LTIuNCAxMS45LTYuOCAzOS41LTguNyA1MS41LTMuOCAyNC4xLTMuMSAzMy45IDguNiA1MC42IDEyLjQgMTcuOSAzNS40IDM3IDYwLjQgNTQuNCAyNC4yIDE2LjkgNDguNCAxNy4yIDczLjEgMTcuMiAyNS41IDAgNTAuNiAxLjIgNzQuOS0xMy4xIDE5LjItMTEuMiAzNS43LTI3LjUgNTQuMi00MnoiLz48L3N2Zz4=" alt="Grape Leaf Logo">
+                                </div>
+                            </div>
+                            <div class="grape-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <h1>Grape Variety Prediction System</h1>
+                            <p>Find the perfect grape variety for your vineyard based on environmental conditions</p>
+                        </div>
+                        
+                        <!-- Animated falling leaves -->
+                        <div id="leaves-container"></div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6 offset-md-3">
+                                <div class="card-3d-wrapper">
+                                    <div class="location-btn-container d-grid gap-3">
+                                        <button id="useLocationBtn" class="btn btn-primary">
+                                            <i class="fas fa-map-marker-alt me-2"></i> Use My Vineyard Location
+                                        </button>
+                                        <button id="getWeatherBtn" class="btn btn-success" disabled>
+                                            <i class="fas fa-cloud-sun me-2"></i> Get Weather Conditions
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="loader" id="loader"></div>
+                        
+                        <form id="predictionForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-section">
+                                        <h3><i class="fas fa-cloud-sun me-2"></i> Weather Information</h3>
+                                        <div class="form-group input-with-icon">
+                                            <label for="temp">Temperature (°C)</label>
+                                            <i class="fas fa-temperature-high input-icon"></i>
+                                            <input type="number" class="form-control" id="temp" name="temp" step="any" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="temp_min">Min Temperature (°C)</label>
+                                            <i class="fas fa-temperature-low input-icon"></i>
+                                            <input type="number" class="form-control" id="temp_min" name="temp_min" step="any" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="temp_max">Max Temperature (°C)</label>
+                                            <i class="fas fa-temperature-high input-icon"></i>
+                                            <input type="number" class="form-control" id="temp_max" name="temp_max" step="any" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="humidity">Air Humidity (%) (30-80)</label>
+                                            <i class="fas fa-tint input-icon"></i>
+                                            <input type="number" class="form-control" id="humidity" name="humidity" step="any" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="pressure">Pressure (hPa)</label>
+                                            <i class="fas fa-compress-alt input-icon"></i>
+                                            <input type="number" class="form-control" id="pressure" name="pressure" step="any" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="condition">Weather Condition</label>
+                                            <i class="fas fa-cloud input-icon"></i>
+                                            <input type="text" class="form-control" id="condition" name="condition" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="wind_speed">Wind Speed (m/s)</label>
+                                            <i class="fas fa-wind input-icon"></i>
+                                            <input type="number" class="form-control" id="wind_speed" name="wind_speed" step="any" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="wind_deg">Wind Direction (°)</label>
+                                            <i class="fas fa-compass input-icon"></i>
+                                            <input type="number" class="form-control" id="wind_deg" name="wind_deg" step="any" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-section">
+                                        <h3><i class="fas fa-seedling me-2"></i> Soil Parameters</h3>
+                                        <div class="form-group input-with-icon">
+                                            <label for="soil_ph">Soil pH (4.5-8.5)</label>
+                                            <i class="fas fa-flask input-icon"></i>
+                                            <input type="number" class="form-control" id="soil_ph" name="soil_ph" step="any" min="0" max="14" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="soil_moisture">Soil Moisture (%) (10-60)</label>
+                                            <i class="fas fa-water input-icon"></i>
+                                            <input type="number" class="form-control" id="soil_moisture" name="soil_moisture" step="any" min="10" max="60" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="nitrogen">Nitrogen (N) (mg/kg) (50-300)</label>
+                                            <i class="fas fa-leaf input-icon"></i>
+                                            <input type="number" class="form-control" id="nitrogen" name="nitrogen" step="any" min="50" max="300" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="phosphorus">Phosphorus (P) (mg/kg) (10-150)</label>
+                                            <i class="fas fa-leaf input-icon"></i>
+                                            <input type="number" class="form-control" id="phosphorus" name="phosphorus" step="any" min="10" max="150" required>
+                                        </div>
+                                        <div class="form-group input-with-icon">
+                                            <label for="potassium">Potassium (K) (mg/kg) (50-250)</label>
+                                            <i class="fas fa-leaf input-icon"></i>
+                                            <input type="number" class="form-control" id="potassium" name="potassium" step="any" min="50" max="250" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="soil_type">Soil Type</label>
+                                            <select class="form-select" id="soil_type" name="soil_type" required>
+                                                <option value="">Select Soil Type</option>
+                                                <option value="Sandy">Sandy</option>
+                                                <option value="Clayey">Clayey</option>
+                                                <option value="Loamy">Loamy</option>
+                                                <option value="Laterite">Laterite</option>
+                                                <option value="Black">Black</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-4">
+                                <div class="col-md-6 offset-md-3">
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-seedling me-2"></i> Predict Grape Variety
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div class="result-container" id="resultContainer">
+                            <h3 class="text-center"><i class="fas fa-seedling me-2"></i> Prediction Result</h3>
+                            <div id="resultContent" class="text-center"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Translation Component -->
+    <div id="translate-container">
+        <button id="translate-button">
+            <i class="fas fa-globe"></i> <span id="translate-button-text">Translate</span>
+        </button>
+        <!-- Scrollable Translate Dropdown -->
+        <div id="translate-dropdown">
+            <div id="google_translate_element"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Create falling leaves animation
+        const createFallingLeaves = () => {
+            const container = document.getElementById('leaves-container');
+            const numberOfLeaves = 15;
+            
+            for (let i = 0; i < numberOfLeaves; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf-animation';
+                
+                // Randomize leaf properties
+                const size = Math.random() * 15 + 10;
+                const duration = Math.random() * 10 + 10;
+                const delay = Math.random() * 5;
+                const leftPos = Math.random() * 100;
+                const rotationSpeed = Math.random() * 3 + 1;
+                
+                // Set inline styles for randomization
+                leaf.style.width = `${size}px`;
+                leaf.style.height = `${size}px`;
+                leaf.style.left = `${leftPos}%`;
+                leaf.style.animationDuration = `${duration}s`;
+                leaf.style.animationDelay = `${delay}s`;
+                
+                // Set random green colors
+                const greenShades = [
+                    '#4caf50', '#81c784', '#a5d6a7', '#66bb6a', '#388e3c', '#2e7d32'
+                ];
+                const colorIndex = Math.floor(Math.random() * greenShades.length);
+                leaf.style.backgroundColor = greenShades[colorIndex];
+                
+                // Add leaf to container
+                container.appendChild(leaf);
+            }
+        };
+        
+        // Call the function to create leaves
+        createFallingLeaves();
+
+        // Three.js 3D Animation
+        const initThreeAnimation = () => {
+            const container = document.getElementById('animation-container');
+            
+            // Create scene, camera and renderer
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+            
+            // Create plant group
+            const plantGroup = new THREE.Group();
+            scene.add(plantGroup);
+            
+            // Colors for the plants - green theme
+            const plantColors = [
+                0x4caf50, // Primary Green
+                0x81c784, // Light Green
+                0x388e3c, // Dark Green
+                0x2e7d32, // Deep Green
+                0xa5d6a7, // Pale Green
+            ];
+            
+            // Create a leafy plant
+            const createLeaf = (x, y, z, scale, color) => {
+                // Create leaf geometry (heart-like shape)
+                const leafShape = new THREE.Shape();
+                leafShape.moveTo(0, 0);
+                leafShape.bezierCurveTo(2.5, -2.5, 5, -5, 10, 0);
+                leafShape.bezierCurveTo(15, 5, 17.5, 2.5, 20, 0);
+                leafShape.bezierCurveTo(17.5, 5, 15, 10, 10, 10);
+                leafShape.bezierCurveTo(5, 10, 2.5, 5, 0, 0);
+                
+                const leafGeometry = new THREE.ShapeGeometry(leafShape);
+                const leafMaterial = new THREE.MeshPhongMaterial({ 
+                    color: color,
+                    shininess: 50,
+                    side: THREE.DoubleSide
+                });
+                
+                const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+                leaf.scale.set(scale * 0.05, scale * 0.05, scale * 0.05);
+                leaf.position.set(x, y, z);
+                
+                leaf.userData = {
+                    rotationSpeed: 0.005 * (Math.random() * 0.5 + 0.5),
+                    floatSpeed: 0.01 * (Math.random() * 0.5 + 0.5),
+                    floatHeight: Math.random() * 0.2,
+                    initialY: y,
+                    floatOffset: Math.random() * Math.PI * 2
+                };
+                
+                return leaf;
+            };
+            
+            // Create plant clusters
+            for (let i = 0; i < 5; i++) {
+                const clusterGroup = new THREE.Group();
+                clusterGroup.position.x = (i - 2) * 4;
+                
+                // Create individual leaves for this cluster
+                for (let j = 0; j < 12; j++) {
+                    const angle = (j / 12) * Math.PI * 2;
+                    const radius = 1 + Math.random() * 0.5;
+                    const x = Math.cos(angle) * radius * 0.7;
+                    const y = Math.random() * 2 - 0.5;
+                    const z = Math.sin(angle) * radius * 0.7;
+                    const scale = 0.8 + Math.random() * 0.4;
+                    const colorIndex = Math.floor(Math.random() * plantColors.length);
+                    
+                    const leaf = createLeaf(x, y, z, scale, plantColors[colorIndex]);
+                    // Rotate leaves in different directions for a natural look
+                    leaf.rotation.x = Math.random() * Math.PI;
+                    leaf.rotation.y = Math.random() * Math.PI;
+                    leaf.rotation.z = Math.random() * Math.PI;
+                    
+                    clusterGroup.add(leaf);
+                }
+                
+                // Add stem
+                const stemGeometry = new THREE.CylinderGeometry(0.05, 0.05, 3, 8);
+                const stemMaterial = new THREE.MeshPhongMaterial({ color: 0x7D5A4F });
+                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+                stem.position.y = -1;
+                clusterGroup.add(stem);
+                
+                // Add some additional decorative elements - berries/fruits
+                const fruitGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+                const fruitMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x9c27b0,
+                    shininess: 100, 
+                    specular: 0xffffff
+                });
+                
+                // Add fruits in a pattern around the stem
+                for (let k = 0; k < 3; k++) {
+                    const fruitAngle = (k / 3) * Math.PI * 2;
+                    const fruitRadius = 0.5;
+                    const fruitX = Math.cos(fruitAngle) * fruitRadius;
+                    const fruitY = 0.2 + k * 0.3;
+                    const fruitZ = Math.sin(fruitAngle) * fruitRadius;
+                    
+                    const fruit = new THREE.Mesh(fruitGeometry, fruitMaterial);
+                    fruit.position.set(fruitX, fruitY, fruitZ);
+                    clusterGroup.add(fruit);
+                }
+                
+                plantGroup.add(clusterGroup);
+            }
+            
+            // Position group
+            plantGroup.position.y = 1;
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            // Add light from opposite direction for more dimension
+            const secondaryLight = new THREE.DirectionalLight(0xcceeff, 0.5);
+            secondaryLight.position.set(-5, 3, -5);
+            scene.add(secondaryLight);
+            
+            // Position camera
+            camera.position.z = 15;
+            
+            // Animation function
+            const animate = () => {
+                requestAnimationFrame(animate);
+                
+                // Rotate the whole group
+                plantGroup.rotation.y += 0.005;
+                
+                // Animate individual leaves
+                plantGroup.traverse((object) => {
+                    if (object.isMesh && object.userData) {
+                        // Float animation
+                        const time = Date.now() * 0.001;
+                        const floatValue = Math.sin(time * object.userData.floatSpeed + object.userData.floatOffset) * object.userData.floatHeight;
+                        object.position.y = object.userData.initialY + floatValue;
+                        
+                        // Gentle rotation animation for leaves
+                        if (object.geometry instanceof THREE.ShapeGeometry) {
+                            object.rotation.x += object.userData.rotationSpeed * 0.05;
+                            object.rotation.z += object.userData.rotationSpeed * 0.03;
+                        }
+                    }
+                });
+                
+                renderer.render(scene, camera);
+            };
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // Start animation
+            animate();
+        };
+        
+        // Initialize Three.js animation
+        initThreeAnimation();
+        
+        // Application Logic
+        let userLocation = {
+            lat: null,
+            lon: null
+        };
+
+        // Get location button
+        document.getElementById('useLocationBtn').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                document.getElementById('loader').style.display = 'block';
+                
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    userLocation.lat = position.coords.latitude;
+                    userLocation.lon = position.coords.longitude;
+                    
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('getWeatherBtn').disabled = false;
+                    
+                    const locationToast = document.createElement('div');
+                    locationToast.className = 'position-fixed top-0 end-0 p-3';
+                    locationToast.style.zIndex = '11';
+                    locationToast.innerHTML = `
+                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                <strong class="me-auto">Location</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                Location obtained: Latitude ${userLocation.lat.toFixed(4)}, Longitude ${userLocation.lon.toFixed(4)}
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(locationToast);
+                    
+                    setTimeout(() => {
+                        locationToast.remove();
+                    }, 5000);
+                    
+                }, function(error) {
+                    document.getElementById('loader').style.display = 'none';
+                    alert(`Error getting location: ${error.message}`);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        });
+
+        // Get weather button
+        document.getElementById('getWeatherBtn').addEventListener('click', function() {
+            if (!userLocation.lat || !userLocation.lon) {
+                alert("Please get your location first.");
+                return;
+            }
+            
+            document.getElementById('loader').style.display = 'block';
+            
+            fetch('/get_weatherforg', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userLocation)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loader').style.display = 'none';
+                
+                if (data.success) {
+                    // Fill the form with weather data
+                    document.getElementById('temp').value = data.data.temp;
+                    document.getElementById('temp_min').value = data.data.temp_min;
+                    document.getElementById('temp_max').value = data.data.temp_max;
+                    document.getElementById('humidity').value = data.data.humidity;
+                    document.getElementById('pressure').value = data.data.pressure;
+                    document.getElementById('condition').value = data.data.condition;
+                    document.getElementById('wind_speed').value = data.data.wind_speed;
+                    document.getElementById('wind_deg').value = data.data.wind_deg;
+                    
+                    const weatherToast = document.createElement('div');
+                    weatherToast.className = 'position-fixed top-0 end-0 p-3';
+                    weatherToast.style.zIndex = '11';
+                    weatherToast.innerHTML = `
+                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <i class="fas fa-cloud-sun me-2 text-success"></i>
+                                <strong class="me-auto">Weather Data</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                Weather data successfully retrieved! Temperature: ${data.data.temp}°C, Condition: ${data.data.condition}
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(weatherToast);
+                    
+                    setTimeout(() => {
+                        weatherToast.remove();
+                    }, 5000);
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                document.getElementById('loader').style.display = 'none';
+                alert(`Error: ${error.message}`);
+            });
+        });
+
+        // Form submission
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const weatherData = {
+                temp: parseFloat(document.getElementById('temp').value),
+                temp_min: parseFloat(document.getElementById('temp_min').value),
+                temp_max: parseFloat(document.getElementById('temp_max').value),
+                humidity: parseFloat(document.getElementById('humidity').value),
+                pressure: parseFloat(document.getElementById('pressure').value),
+                condition: document.getElementById('condition').value,
+                wind_speed: parseFloat(document.getElementById('wind_speed').value),
+                wind_deg: parseFloat(document.getElementById('wind_deg').value)
+            };
+            
+            const soilData = {
+                ph: parseFloat(document.getElementById('soil_ph').value),
+                moisture: parseFloat(document.getElementById('soil_moisture').value),
+                nitrogen: parseFloat(document.getElementById('nitrogen').value),
+                phosphorus: parseFloat(document.getElementById('phosphorus').value),
+                potassium: parseFloat(document.getElementById('potassium').value),
+                type: document.getElementById('soil_type').value
+            };
+            
+            const requestData = {
+                weather: weatherData,
+                soil: soilData
+            };
+            
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('resultContainer').style.display = 'none';
+            
+            fetch('/predictgrp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('resultContainer').style.display = 'block';
+                
+                if (data.success) {
+                    document.getElementById('resultContainer').className = 'result-container success';
+                    document.getElementById('resultContent').innerHTML = `
+                        <div class="icon-box">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <span class="result-highlight">Recommended Grape Variety: ${data.variety}</span>
+                        <div class="mt-3 mb-3">
+                            <h5><i class="fas fa-info-circle me-2"></i> Variety Information</h5>
+                            <div id="description-container">
+                                <div class="ai-loading">Generating detailed description...</div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h5><i class="fas fa-leaf me-2"></i> Vineyard Growing Recommendations</h5>
+                            <div id="recommendations-container">
+                                <div class="ai-loading">Generating growing recommendations...</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Update description when available
+                    if (data.description) {
+                        document.getElementById('description-container').innerHTML = 
+                            `<p class="description-text">${data.description}</p>`;
+                    } else {
+                        // If no description is provided in the response
+                        setTimeout(() => {
+                            document.getElementById('description-container').innerHTML = 
+                                `<p class="description-text">No description available for this variety.</p>`;
+                        }, 1500);
+                    }
+                    
+                    // Update recommendations when available
+                    if (data.recommendations) {
+                        document.getElementById('recommendations-container').innerHTML = 
+                            `<p class="recommendation-text">${data.recommendations}</p>`;
+                    } else {
+                        // If no recommendations are provided in the response
+                        setTimeout(() => {
+                            document.getElementById('recommendations-container').innerHTML = 
+                                `<p class="recommendation-text">No specific growing recommendations available for this variety.</p>`;
+                        }, 1800);
+                    }
+                } else {
+                    document.getElementById('resultContainer').className = 'result-container error';
+                    document.getElementById('resultContent').innerHTML = `
+                        <div class="icon-box">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <span class="result-highlight">Error</span>
+                        <p>${data.message}</p>
+                    `;
+                }
+            })
+            .catch(error => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('resultContainer').className = 'result-container error';
+                document.getElementById('resultContent').innerHTML = `
+                    <div class="icon-box">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <span class="result-highlight">Error</span>
+                    <p>An unexpected error occurred: ${error.message}</p>
+                `;
+            });
+        });
+
+        // Translation functionality
+        // Track the current language
+        let currentLanguage = 'en';
+        
+        // Toggle Translate Dropdown
+        document
+            .getElementById("translate-button")
+            .addEventListener("click", function () {
+                const dropdown = document.getElementById("translate-dropdown");
+                dropdown.style.display =
+                    dropdown.style.display === "none" || dropdown.style.display === ""
+                    ? "block"
+                    : "none";
+            });
+        
+        // Load Google Translate Script Dynamically
+        function loadGoogleTranslateScript() {
+            const script = document.createElement("script");
+            script.src =
+            "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            script.type = "text/javascript";
+            document.body.appendChild(script);
+        }
+        
+        // Initialize Google Translate Element
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: "en", // Default page language
+                    includedLanguages: `
+                        as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+                        en
+                    `,
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                    autoDisplay: false,
+                    gaTrack: true,
+                    gaId: 'UA-XXXXX-X', // Replace with your Google Analytics ID if needed
+                },
+                "google_translate_element"
+            );
+            
+            // Add event listener for language change
+            if (typeof google !== 'undefined' && google.translate) {
+                // Wait for the translate widget to load
+                setTimeout(function() {
+                    const translateSelectElement = document.querySelector('.goog-te-combo');
+                    if (translateSelectElement) {
+                        translateSelectElement.addEventListener('change', function() {
+                            currentLanguage = this.value;
+                            console.log('Language changed to: ' + currentLanguage);
+                            
+                            // Update UI for selected language
+                            updateUIForLanguage(currentLanguage);
+                            
+                            // Store language preference in localStorage for persistence across pages
+                            localStorage.setItem('preferredLanguage', currentLanguage);
+                            
+                            // Retranslate any dynamic content
+                            translateDynamicContent();
+                            
+                            // Close dropdown after selection (optional)
+                            setTimeout(function() {
+                                document.getElementById("translate-dropdown").style.display = "none";
+                            }, 1000);
+                        });
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Function to update UI elements based on the selected language
+        function updateUIForLanguage(lang) {
+            // Update the translate button appearance
+            const translateButton = document.getElementById('translate-button');
+            const translateButtonText = document.getElementById('translate-button-text');
+            
+            if (lang && lang !== 'en') {
+                translateButton.classList.add('active-translation');
+                translateButton.style.backgroundColor = '#1a8754'; // Change to green when active
+                translateButtonText.textContent = 'Translated';
+            } else {
+                translateButton.classList.remove('active-translation');
+                translateButton.style.backgroundColor = '#2d457e'; // Revert to original color
+                translateButtonText.textContent = 'Translate';
+            }
+        }
+        
+        // Function to translate dynamic content
+        function translateDynamicContent() {
+            if (typeof google !== 'undefined' && google.translate && 
+                google.translate.TranslateElement && 
+                currentLanguage !== 'en') {
+                
+                // Force retranslation of the page
+                const translateElement = google.translate.TranslateElement.getInstance();
+                if (translateElement) {
+                    translateElement.update();
+                }
+            }
+        }
+        
+        // Observer for dynamic content changes
+        function setupContentObserver() {
+            // Create MutationObserver to watch for DOM changes
+            const observer = new MutationObserver(function(mutations) {
+                // Check if we need to translate new content
+                if (currentLanguage !== 'en') {
+                    setTimeout(translateDynamicContent, 500);
+                }
+            });
+            
+            // Target nodes to observe
+            const targetNodes = [
+                document.querySelector('.main-container'),
+                document.getElementById('resultContainer')
+            ];
+            
+            // Observe each target node
+            targetNodes.forEach(node => {
+                if (node) {
+                    observer.observe(node, {
+                        childList: true,
+                        subtree: true,
+                        characterData: true,
+                        attributes: false
+                    });
+                }
+            });
+        }
+        
+        // Initialize translation and setup listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load Google Translate script
+            loadGoogleTranslateScript();
+            
+            // Setup content change observer
+            setupContentObserver();
+            
+            // Check for saved language preference
+            const savedLanguage = localStorage.getItem('preferredLanguage');
+            
+            if (savedLanguage && savedLanguage !== 'en') {
+                currentLanguage = savedLanguage;
+                
+                // Wait for Google Translate to initialize before applying saved language
+                const checkInterval = setInterval(function() {
+                    if (typeof google !== 'undefined' && google.translate) {
+                        const translateCombo = document.querySelector('.goog-te-combo');
+                        if (translateCombo) {
+                            translateCombo.value = savedLanguage;
+                            translateCombo.dispatchEvent(new Event('change'));
+                            updateUIForLanguage(savedLanguage);
+                            clearInterval(checkInterval);
+                        }
+                    }
+                }, 300);
+                
+                // Clear interval after 10 seconds to prevent infinite checking
+                setTimeout(function() {
+                    clearInterval(checkInterval);
+                }, 10000);
+            }
+        });
+        
+        // Event listeners for dynamic content
+        // For example, after AJAX requests
+        window.addEventListener('ajaxComplete', translateDynamicContent);
+    </script>
+</body>
+</html>

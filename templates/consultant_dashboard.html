@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultant Dashboard - Grape Farm Planner{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-xl-2 col-lg-3 col-md-4 d-md-block sidebar bg-light pt-3 pb-5 border-end" style="min-height: 100vh;">
+            <div class="text-center mb-4">
+                <div class="avatar bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2.5rem;">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h5 class="mb-0">{{ consultant.name }}</h5>
+                <p class="text-muted small">{{ consultant.location }}</p>
+            </div>
+            <div class="px-3 mb-4">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">Statistics</h6>
+                <div class="row g-2 text-center">
+                    <div class="col-6">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body py-2">
+                                <h2 class="mb-0">{{ farmers|length }}</h2>
+                                <p class="text-muted small mb-0">Farmers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body py-2">
+                                <h2 class="mb-0">{{ total_farms }}</h2>
+                                <p class="text-muted small mb-0">Farms</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">Navigation</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('consultant_dashboard') }}">
+                            <i class="fas fa-th-large me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('consultant_profile') }}">
+                            <i class="fas fa-user-circle me-2"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-xl-10 col-lg-9 col-md-8 ms-sm-auto px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2"><i class="fas fa-tachometer-alt me-2"></i>Consultant Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-calendar-alt me-1"></i> Today: {{ now.strftime('%B %d, %Y') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farmers List -->
+            <h4 class="mb-3">Assigned Farmers</h4>
+            <div class="card mb-4">
+                <div class="card-body">
+                    {% if farmers %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Contact</th>
+                                    <th>Farms</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for farmer in farmers %}
+                                <tr>
+                                    <td>{{ farmer.name }}</td>
+                                    <td>{{ farmer.location }}</td>
+                                    <td>
+                                        <a href="mailto:{{ farmer.email }}" class="text-decoration-none">
+                                            <i class="fas fa-envelope me-1"></i>{{ farmer.email }}
+                                        </a><br>
+                                        <small><i class="fas fa-phone me-1"></i>{{ farmer.phone }}</small>
+                                    </td>
+                                    <td>{{ farmer.farm_count }}</td>
+                                    <td>
+                                        <a href="{{ url_for('consultant_view_farmer', user_id=farmer._id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>View Farms
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No farmers have selected you as their consultant yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Comments -->
+            <h4 class="mb-3">Recent Comments</h4>
+            <div class="card">
+                <div class="card-body">
+                    {% if recent_comments %}
+                    <div class="list-group">
+                        {% for comment in recent_comments %}
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Comment on: {{ comment.farm_name }}</h6>
+                                <small class="text-muted">{{ comment.created_at.strftime('%d %b, %Y') }}</small>
+                            </div>
+                            <p class="mb-1">{{ comment.content }}</p>
+                            <small class="text-muted">Farmer: {{ comment.farmer_name }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>You haven't made any comments yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

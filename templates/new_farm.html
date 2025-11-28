@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New Farm - Personal Farm Planner{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Create New Farm</li>
+                </ol>
+            </nav>
+            <h2 class="mb-3">Create New Farm</h2>
+            <p class="text-muted">Enter your farm details to get started with planning your grape cultivation.</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('new_farm') }}" id="farmForm">
+                        <div class="mb-3">
+                            <label for="farm_name" class="form-label">Farm Name</label>
+                            <input type="text" class="form-control" id="farm_name" name="farm_name" required placeholder="e.g., East Valley Vineyard">
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="farm_length" class="form-label">Farm Length (meters)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="farm_length" name="farm_length" min="1" step="0.1" required placeholder="e.g., 100">
+                                    <span class="input-group-text">m</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="farm_width" class="form-label">Farm Width (meters)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="farm_width" name="farm_width" min="1" step="0.1" required placeholder="e.g., 50">
+                                    <span class="input-group-text">m</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="grape_variety" class="form-label">Grape Variety</label>
+                            <select class="form-select" id="grape_variety" name="grape_variety" required>
+                                <option value="" selected disabled>Select a grape variety</option>
+                                {% for variety in grape_varieties %}
+                                    <option value="{{ variety.name }}" 
+                                            data-width-spacing="{{ variety.recommended_spacing.width }}" 
+                                            data-length-spacing="{{ variety.recommended_spacing.length }}">
+                                        {{ variety.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="plant_width_spacing" class="form-label">Plant Width Spacing (meters)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="plant_width_spacing" name="plant_width_spacing" min="0.1" step="0.1" value="1.8" required>
+                                    <span class="input-group-text">m</span>
+                                </div>
+                                <small class="text-muted">Distance between plants in a row</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="plant_length_spacing" class="form-label">Plant Length Spacing (meters)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="plant_length_spacing" name="plant_length_spacing" min="0.1" step="0.1" value="2.4" required>
+                                    <span class="input-group-text">m</span>
+                                </div>
+                                <small class="text-muted">Distance between rows</small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Farm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Layout Preview</h5>
+                    <div id="layoutPreview" class="d-flex justify-content-center align-items-center my-3" style="height: 200px; background-color: #f8f9fa; border-radius: 4px;">
+                        <p class="text-muted" id="layoutMessage">Enter farm dimensions to see layout preview</p>
+                        <canvas id="layoutCanvas" style="display: none; max-width: 100%;"></canvas>
+                    </div>
+                    <div id="layoutStats" class="mt-3" style="display: none;">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h6 class="text-primary mb-1" id="totalPlants">0</h6>
+                                <small class="text-muted">Total Plants</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-primary mb-1" id="rowsCols">0 × 0</h6>
+                                <small class="text-muted">Rows × Columns</small>
+                            </div>
+                        </div>
+                        <div class="row text-center mt-3">
+                            <div class="col-6">
+                                <h6 class="text-primary mb-1" id="utilizationRate">0%</h6>
+                                <small class="text-muted">Utilization</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-primary mb-1" id="totalArea">0 m²</h6>
+                                <small class="text-muted">Total Area</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Recommended Spacing</h5>
+                    <p class="text-muted">These are the recommended spacing values for optimal growth of different grape varieties:</p>
+                    
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>Thompson Seedless</span>
+                            <span class="badge bg-primary">1.8m × 2.4m</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>Flame Seedless</span>
+                            <span class="badge bg-primary">1.8m × 2.4m</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>Crimson Seedless</span>
+                            <span class="badge bg-primary">2.0m × 2.5m</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>Concord</span>
+                            <span class="badge bg-primary">2.4m × 3.0m</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>Other Varieties</span>
+                            <span class="badge bg-primary">1.8-2.4m × 2.0-3.0m</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const farmLength = document.getElementById('farm_length');
+    const farmWidth = document.getElementById('farm_width');
+    const plantWidthSpacing = document.getElementById('plant_width_spacing');
+    const plantLengthSpacing = document.getElementById('plant_length_spacing');
+    const grapeVariety = document.getElementById('grape_variety');
+    const layoutCanvas = document.getElementById('layoutCanvas');
+    const layoutMessage = document.getElementById('layoutMessage');
+    const layoutStats = document.getElementById('layoutStats');
+    const totalPlants = document.getElementById('totalPlants');
+    const rowsCols = document.getElementById('rowsCols');
+    const utilizationRate = document.getElementById('utilizationRate');
+    const totalArea = document.getElementById('totalArea');
+    
+    // Auto-fill spacing based on grape variety
+    grapeVariety.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const widthSpacing = selectedOption.getAttribute('data-width-spacing');
+        const lengthSpacing = selectedOption.getAttribute('data-length-spacing');
+        
+        if (widthSpacing && lengthSpacing) {
+            plantWidthSpacing.value = widthSpacing;
+            plantLengthSpacing.value = lengthSpacing;
+            updateLayoutPreview();
+        }
+    });
+    
+    // Update layout preview when dimensions change
+    [farmLength, farmWidth, plantWidthSpacing, plantLengthSpacing].forEach(element => {
+        element.addEventListener('input', updateLayoutPreview);
+    });
+    
+    function updateLayoutPreview() {
+        const length = parseFloat(farmLength.value) || 0;
+        const width = parseFloat(farmWidth.value) || 0;
+        const pws = parseFloat(plantWidthSpacing.value) || 0;
+        const pls = parseFloat(plantLengthSpacing.value) || 0;
+        
+        if (length > 0 && width > 0 && pws > 0 && pls > 0) {
+            // Show canvas and hide message
+            layoutCanvas.style.display = 'block';
+            layoutMessage.style.display = 'none';
+            layoutStats.style.display = 'block';
+            
+            // Calculate farm layout
+            const data = {
+                farmLength: length,
+                farmWidth: width,
+                plantWidthSpacing: pws,
+                plantLengthSpacing: pls
+            };
+            
+            fetch('/api/farm/layout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const layout = data.layout;
+                
+                // Update stats
+                totalPlants.textContent = layout.max_capacity;
+                rowsCols.textContent = `${layout.max_plants_length} × ${layout.max_plants_width}`;
+                utilizationRate.textContent = `${layout.utilization.toFixed(1)}%`;
+                totalArea.textContent = `${layout.total_area.toFixed(1)} m²`;
+                
+                // Draw layout preview
+                drawLayoutPreview(layout);
+            })
+            .catch(error => {
+                console.error('Error calculating layout:', error);
+                layoutCanvas.style.display = 'none';
+                layoutMessage.style.display = 'block';
+                layoutMessage.textContent = 'Error calculating layout';
+            });
+        } else {
+            // Hide canvas and show message
+            layoutCanvas.style.display = 'none';
+            layoutMessage.style.display = 'block';
+            layoutStats.style.display = 'none';
+        }
+    }
+    
+    function drawLayoutPreview(layout) {
+        const canvas = layoutCanvas;
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas dimensions
+        const maxSize = 200;
+        const aspectRatio = layout.total_area > 0 ? 
+            Math.min(layout.used_width / layout.used_length, layout.used_length / layout.used_width) : 1;
+        
+        if (layout.used_width > layout.used_length) {
+            canvas.width = maxSize;
+            canvas.height = maxSize * aspectRatio;
+        } else {
+            canvas.height = maxSize;
+            canvas.width = maxSize * aspectRatio;
+        }
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw farm boundary
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        
+        // Calculate scales
+        const scaleX = canvasWidth / layout.total_area * layout.used_length;
+        const scaleY = canvasHeight / layout.total_area * layout.used_width;
+        
+        // Draw unused area (light green)
+        ctx.fillStyle = '#e8f5e9';
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        
+        // Draw used area (darker green)
+        ctx.fillStyle = '#81c784';
+        ctx.fillRect(
+            (canvasWidth - (layout.used_length * scaleX)) / 2,
+            (canvasHeight - (layout.used_width * scaleY)) / 2,
+            layout.used_length * scaleX,
+            layout.used_width * scaleY
+        );
+        
+        // Draw plants
+        const plantRadius = Math.min(2, 
+            Math.min(
+                (layout.used_length * scaleX) / (layout.max_plants_length * 4),
+                (layout.used_width * scaleY) / (layout.max_plants_width * 4)
+            )
+        );
+        
+        ctx.fillStyle = '#2e7d32';
+        
+        const startX = (canvasWidth - (layout.used_length * scaleX)) / 2;
+        const startY = (canvasHeight - (layout.used_width * scaleY)) / 2;
+        
+        for (let row = 0; row < layout.max_plants_width; row++) {
+            for (let col = 0; col < layout.max_plants_length; col++) {
+                const x = startX + (col * layout.plant_length_spacing + layout.plant_length_spacing/2) * scaleX;
+                const y = startY + (row * layout.plant_width_spacing + layout.plant_width_spacing/2) * scaleY;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, plantRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

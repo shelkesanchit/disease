@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}Personal Farm Planner - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Personal Farm Planner for Grape Cultivation</h1>
+                <p class="lead mb-4">Optimize your grape farming with our comprehensive planning tool. Get customized schedules, layout recommendations, and farming guidance based on your specific needs.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg px-4 me-md-2">Get Started</a>
+                    {% if not session.get('user_id') %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4">Sign In</a>
+                    {% else %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg px-4">Dashboard</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div id="farm-3d-animation" class="animation-container rounded shadow" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Key Features</h2>
+            <p class="lead">Our platform offers everything you need to manage your grape farm efficiently</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-primary text-white mb-3">
+                            <i class="fas fa-calendar-alt fa-2x"></i>
+                        </div>
+                        <h3 class="card-title h5">Automated Grape Farming Schedule</h3>
+                        <p class="card-text">Get customized schedules for watering, pruning, fertilization, pest control, and harvesting based on your grape variety and planting date.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-primary text-white mb-3">
+                            <i class="fas fa-map-marked-alt fa-2x"></i>
+                        </div>
+                        <h3 class="card-title h5">Customized Farm Layout Generator</h3>
+                        <p class="card-text">Plan your vineyard layout with optimal spacing calculations and visualizations to maximize land utilization and yield.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-primary text-white mb-3">
+                            <i class="fas fa-cloud-sun fa-2x"></i>
+                        </div>
+                        <h3 class="card-title h5">Smart Climate-Based Recommendations</h3>
+                        <p class="card-text">Receive recommendations tailored to your local climate conditions using real-time weather data for optimal farming decisions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-primary text-white mb-3">
+                            <i class="fas fa-flask fa-2x"></i>
+                        </div>
+                        <h3 class="card-title h5">Pesticide & Fertilizer Guidance</h3>
+                        <p class="card-text">Get specific recommendations for pesticides and fertilizers based on your grape variety, growth stage, and local conditions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-primary text-white mb-3">
+                            <i class="fas fa-bell fa-2x"></i>
+                        </div>
+                        <h3 class="card-title h5">Alerts & Notifications</h3>
+                        <p class="card-text">Stay on track with timely alerts for upcoming farming tasks, weather conditions, and critical growth stages.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-primary text-white mb-3">
+                            <i class="fas fa-file-pdf fa-2x"></i>
+                        </div>
+                        <h3 class="card-title h5">PDF Download of Farming Plan</h3>
+                        <p class="card-text">Export your customized farming plan as a PDF for offline reference or sharing with farm workers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Grape Varieties Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Supported Grape Varieties</h2>
+            <p class="lead">Optimized plans for these popular grape varieties</p>
+        </div>
+
+        <div class="row row-cols-2 row-cols-md-3 g-4">
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="card-title h5">Thompson Seedless</h3>
+                        <p class="card-text text-muted">Table Grape</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="card-title h5">Flame Seedless</h3>
+                        <p class="card-text text-muted">Table Grape</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="card-title h5">Crimson Seedless</h3>
+                        <p class="card-text text-muted">Table Grape</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="card-title h5">Concord</h3>
+                        <p class="card-text text-muted">Wine/Juice Grape</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="card-title h5">Moon Drops</h3>
+                        <p class="card-text text-muted">Table Grape</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="card-title h5">Black Corinth</h3>
+                        <p class="card-text text-muted">Table/Drying Grape</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="card-title h5">Red Globe</h3>
+                        <p class="card-text text-muted">Table Grape</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="card-title h5">Autumn Royal</h3>
+                        <p class="card-text text-muted">Table Grape</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="card-title h5">Sultana</h3>
+                        <p class="card-text text-muted">Table/Drying Grape</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="display-5 fw-bold mb-4">Ready to optimize your grape farm?</h2>
+                <p class="lead mb-4">Create your account today and start planning for a successful harvest.</p>
+                <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg px-5">Get Started Now</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Translation Container -->
+<div
+        id="translate-container"
+        style="position: fixed; bottom: 20px; right: 20px; z-index: 9999"
+      >
+        <button
+          id="translate-button"
+          style="
+            padding: 10px;
+            background-color: #2d457e;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+          "
+        >
+          🌐 Translate
+        </button>
+        <!-- Scrollable Translate Dropdown -->
+        <div
+          id="translate-dropdown"
+          style="
+            display: none;
+            max-height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+          "
+        >
+          <div id="google_translate_element"></div>
+        </div>
+      </div>
+      <script>
+        // Toggle Translate Dropdown
+        document
+          .getElementById("translate-button")
+          .addEventListener("click", function () {
+            const dropdown = document.getElementById("translate-dropdown");
+            dropdown.style.display =
+              dropdown.style.display === "none" || dropdown.style.display === ""
+                ? "block"
+                : "none";
+          });
+        // Load Google Translate Script Dynamically
+        function loadGoogleTranslateScript() {
+          const script = document.createElement("script");
+          script.src =
+            "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+          script.type = "text/javascript";
+          document.body.appendChild(script);
+        }
+        // Initialize Google Translate Element
+        function googleTranslateElementInit() {
+          new google.translate.TranslateElement(
+            {
+              pageLanguage: "en", // Default page language
+              includedLanguages: `
+        as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,
+      en
+      `,
+              layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            },
+            "google_translate_element"
+          );
+        }
+        // Load the Translate Script
+        loadGoogleTranslateScript();
+      </script>
+{% endblock %}

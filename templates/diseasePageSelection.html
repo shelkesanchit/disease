@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmAI - Disease Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --primary-dark: #27ae60;
+            --primary-light: #a8e4bc;
+            --primary-ultra-light: #eafaf1;
+            --secondary: #3498db;
+            --secondary-dark: #2980b9;
+            --accent: #f39c12;
+            --accent-dark: #e67e22;
+            --dark: #2c3e50;
+            --medium: #7f8c8d;
+            --light: #ecf0f1;
+            --ultra-light: #f9f9f9;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+            --border-radius-sm: 4px;
+            --border-radius: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 20px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(120deg, #f8fcf9, #eafaf1);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 80px auto 90px;
+            background-color: white;
+            padding: 35px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius-lg);
+            overflow-y: auto;
+            position: relative;
+            min-height: 600px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--primary-light);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 32px;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        h2 {
+            color: var(--primary-dark);
+            font-size: 22px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tab {
+            padding: 12px 30px;
+            background-color: var(--ultra-light);
+            border-radius: var(--border-radius-xl);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--medium);
+            box-shadow: var(--shadow-sm);
+            min-width: 160px;
+            text-align: center;
+        }
+
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .tab:hover:not(.active) {
+            background-color: var(--primary-ultra-light);
+            transform: translateY(-2px);
+        }
+
+        .disease-sections {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .disease-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .disease-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .disease-visuals {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .disease-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            height: 100%;
+            border: 1px solid var(--light);
+            overflow: hidden;
+        }
+
+        .disease-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .disease-card h3 {
+            color: var(--primary-dark);
+            margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .disease-card h3 .expand-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-ultra-light);
+            border-radius: 50%;
+            color: var(--primary);
+            font-size: 16px;
+            font-weight: bold;
+            transition: var(--transition);
+        }
+
+        .disease-card.expanded h3 .expand-icon {
+            background-color: var(--primary);
+            color: white;
+            transform: rotate(45deg);
+        }
+
+        .disease-card .disease-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+            padding: 0;
+            margin-top: 0;
+        }
+
+        .disease-card.expanded .disease-details {
+            max-height: 1000px;
+            padding-top: 15px;
+            margin-top: 15px;
+            border-top: 1px solid var(--primary-light);
+        }
+
+        .disease-card p {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: var(--medium);
+        }
+
+        .disease-card ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .disease-card li {
+            margin-bottom: 8px;
+            color: var(--medium);
+        }
+
+        .disease-image {
+            width: 100%;
+            height: 180px;
+            background-color: var(--ultra-light);
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .disease-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .disease-card:hover .disease-image img {
+            transform: scale(1.05);
+        }
+
+        .detection-container {
+            background: linear-gradient(120deg, #eafaf1, #f7fdfc);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--primary-light);
+        }
+
+        .detection-container p {
+            max-width: 700px;
+            margin: 0 auto 25px;
+            color: var(--medium);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .detection-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .detection-option {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid var(--light);
+            height: 100%;
+        }
+
+        .detection-option:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .detection-option h3 {
+            color: var(--primary-dark);
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .detection-option p {
+            font-size: 15px;
+            margin-bottom: 20px;
+            color: var(--medium);
+        }
+
+        .try-now-btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: var(--border-radius-xl);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            box-shadow: var(--shadow);
+        }
+
+        .try-now-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .info-box {
+            background-color: var(--primary-ultra-light);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            margin: 20px 0 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .info-box h4 {
+            margin-top: 0;
+            color: var(--primary-dark);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box p {
+            margin-bottom: 0;
+            color: var(--medium);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .severity-indicator {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .severity-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .low { 
+            background-color: #ffeb3b; 
+            box-shadow: 0 0 8px rgba(255, 235, 59, 0.5);
+        }
+        
+        .medium { 
+            background-color: #ff9800; 
+            box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+        }
+        
+        .high { 
+            background-color: #f44336; 
+            box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+        }
+
+        footer {
+            padding: 15px 0;
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            margin-top: auto;
+            position: relative;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .footer-info {
+            text-align: left;
+        }
+
+        .footer-info p {
+            font-size: 0.85rem;
+        }
+
+        /* Translation Styles */
+        #translate-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        #translate-button {
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        #translate-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        #translate-dropdown {
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            background: white;
+            padding: 15px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius);
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            width: 280px;
+        }
+        
+        .goog-te-combo {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid #e0e0e0;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .main-container {
+                width: 95%;
+                padding: 25px;
+                margin: 60px auto 90px;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            .logo-icon {
+                font-size: 28px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .tabs {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+            }
+            
+            .tab {
+                padding: 10px 20px;
+                font-size: 14px;
+                min-width: 120px;
+            }
+
+            .disease-visuals {
+                grid-template-columns: 1fr;
+            }
+            
+            .try-now-btn {
+                padding: 10px 20px;
+                font-size: 15px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            h2 {
+                font-size: 20px;
+            }
+            
+            .info-box {
+                padding: 15px;
+            }
+            
+            .detection-container {
+                padding: 20px;
+            }
+            
+            .detection-option {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 20px 15px;
+                width: 100%;
+                border-radius: 0;
+                margin: 0 0 60px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .tab {
+                width: 100%;
+            }
+            
+            .disease-card {
+                padding: 15px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-info {
+                text-align: center;
+            }
+            
+            .disease-image {
+                height: 160px;
+            }
+            
+            #translate-button {
+                padding: 10px 15px;
+                font-size: 14px;
+                right: 15px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <div class="logo"><span class="logo-icon">🌱</span> FarmAI</div>
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('grape')">Grape Diseases</div>
+                <div class="tab" onclick="switchTab('apple')">Apple Diseases</div>
+            </div>
+        </header>
+
+        <div class="disease-sections">
+            <!-- Grape Diseases Section -->
+            <div id="grape-section" class="disease-section active">
+                <h1>Grape Leaf Disease Detection</h1>
+                
+                <div class="info-box">
+                    <h4><i class="fas fa-lightbulb"></i> Why Early Detection Matters</h4>
+                    <p>Detecting grape diseases early can save up to 80% of crops and reduce pesticide use by 50%. Our AI system can identify diseases before they become visible to the naked eye.</p>
+                </div>
+                
+                <div class="disease-visuals">
+                    <div class="disease-card" onclick="toggleExpand(this)">
+                        <div class="disease-image">
+                            <img src="{{ url_for('static', filename='powderymildew.jpg') }}" alt="Powdery Mildew on Grape Leaf">
+                        </div>
+                        <h3>Powdery Mildew <span class="expand-icon">+</span></h3>
+                        <p>White powdery coating on leaves that can stunt growth and reduce yield.</p>
+                        
+                        <div class="disease-details">
+                            <div class="severity-indicator">
+                                <span class="severity-dot high"></span> High Severity
+                            </div>
+                            <p><strong>Symptoms:</strong> White powdery spots on leaves and stems that eventually cover the entire surface.</p>
+                            <p><strong>Conditions:</strong> Favored by high humidity and moderate temperatures (60-80°F).</p>
+                            <p><strong>Treatment:</strong> Sulfur-based fungicides, potassium bicarbonate, or neem oil. Improve air circulation by proper pruning.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="disease-card" onclick="toggleExpand(this)">
+                        <div class="disease-image">
+                            <img src="{{ url_for('static', filename='downymildew.jpg') }}" alt="Downy Mildew on Grape Leaf">
+                        </div>
+                        <h3>Downy Mildew <span class="expand-icon">+</span></h3>
+                        <p>Yellow/brown spots on upper leaf surface with white fuzzy growth underneath.</p>
+                        
+                        <div class="disease-details">
+                            <div class="severity-indicator">
+                                <span class="severity-dot high"></span> High Severity
+                            </div>
+                            <p><strong>Symptoms:</strong> Yellow to brown spots on the upper leaf surface and white fuzzy growth on the underside.</p>
+                            <p><strong>Conditions:</strong> Develops in cool, wet conditions (50-75°F) with high humidity.</p>
+                            <p><strong>Treatment:</strong> Copper-based fungicides, proper canopy management, and ensuring good air circulation.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="disease-card" onclick="toggleExpand(this)">
+                        <div class="disease-image">
+                            <img src="{{ url_for('static', filename='C0121047-Black_rot_of_grape.jpg') }}" alt="Black Rot on Grape Leaf">
+                        </div>
+                        <h3>Black Rot <span class="expand-icon">+</span></h3>
+                        <p>Small, dark brown circular lesions that may cover the entire leaf.</p>
+                        
+                        <div class="disease-details">
+                            <div class="severity-indicator">
+                                <span class="severity-dot medium"></span> Medium Severity
+                            </div>
+                            <p><strong>Symptoms:</strong> Brown circular spots with dark borders that may develop tiny black dots in the center.</p>
+                            <p><strong>Conditions:</strong> Warm, humid weather (70-85°F) with extended wet periods.</p>
+                            <p><strong>Treatment:</strong> Mancozeb or myclobutanil fungicides, remove infected leaves, and practice good sanitation.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="disease-card" onclick="toggleExpand(this)">
+                        <div class="disease-image">
+                            <img src="{{ url_for('static', filename='leafblight.jpg') }}" alt="Leaf Blight on Grape">
+                        </div>
+                        <h3>Leaf Blight <span class="expand-icon">+</span></h3>
+                        <p>Irregular brown spots with yellow halos that can cause defoliation.</p>
+                        
+                        <div class="disease-details">
+                            <div class="severity-indicator">
+                                <span class="severity-dot medium"></span> Medium Severity
+                            </div>
+                            <p><strong>Symptoms:</strong> Brown irregular spots with yellow margins, leading to premature leaf drop.</p>
+                            <p><strong>Conditions:</strong> Warm and humid weather, especially after rainy periods.</p>
+                            <p><strong>Treatment:</strong> Copper or mancozeb-based fungicides, improving drainage, and reducing overhead irrigation.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detection-container">
+                    <h2>Start Detecting Grape Diseases Now</h2>
+                    <p>Upload an image of your grape leaf for instant AI analysis and personalized treatment recommendations.</p>
+                    <a class="try-now-btn" href="/disease-grape"><i class="fas fa-leaf"></i> Try Grape Disease Detection</a>
+                </div>
+            </div>
+            
+            <!-- Apple Diseases Section -->
+            <div id="apple-section" class="disease-section">
+                <h1>Apple Fruit Disease Detection</h1>
+                
+                <div class="info-box">
+                    <h4><i class="fas fa-apple-alt"></i> Protect Your Apple Harvest</h4>
+                    <p>Apple diseases can reduce marketable yield by up to 70%. Our AI detection system can identify diseases with 95% accuracy, allowing for targeted treatment.</p>
+                </div>
+                
+                <div class="disease-visuals">
+                    <div class="disease-card" onclick="toggleExpand(this)">
+                        <div class="disease-image">
+                            <img src="{{ url_for('static', filename='applescab.jpg') }}" alt="Apple Scab">
+                        </div>
+                        <h3>Apple Scab <span class="expand-icon">+</span></h3>
+                        <p>Olive-green to brown spots on fruit that can crack and deform.</p>
+                        
+                        <div class="disease-details">
+                            <div class="severity-indicator">
+                                <span class="severity-dot high"></span> High Severity
+                            </div>
+                            <p><strong>Symptoms:</strong> Velvety olive-green to brown spots on fruit that can cause cracking and deformation.</p>
+                            <p><strong>Conditions:</strong> Cool, wet spring weather with temperatures between 55-75°F.</p>
+                            <p><strong>Treatment:</strong> Captan or mancozeb fungicides, proper sanitation, and resistant varieties.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="disease-card" onclick="toggleExpand(this)">
+                        <div class="disease-image">
+                            <img src="{{ url_for('static', filename='cedarrust.jpg') }}" alt="Cedar Apple Rust">
+                        </div>
+                        <h3>Cedar Apple Rust <span class="expand-icon">+</span></h3>
+                        <p>Bright orange or yellow spots that can cause premature fruit drop.</p>
+                        
+                        <div class="disease-details">
+                            <div class="severity-indicator">
+                                <span class="severity-dot medium"></span> Medium Severity
+                            </div>
+                            <p><strong>Symptoms:</strong> Bright orange or yellow spots on fruit surface, sometimes with a red border.</p>
+                            <p><strong>Conditions:</strong> Requires both apple trees and juniper/cedar trees to complete its life cycle.</p>
+                            <p><strong>Treatment:</strong> Remove nearby juniper/cedar trees, apply fungicides like myclobutanil in spring.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="disease-card" onclick="toggleExpand(this)">
+                        <div class="disease-image">
+                            <img src="{{ url_for('static', filename='applerot.jpg') }}" alt="Apple Rot">
+                        </div>
+                        <h3>Apple Rot <span class="expand-icon">+</span></h3>
+                        <p>Brown, soft spots that spread rapidly and can destroy entire fruits.</p>
+                        
+                        <div class="disease-details">
+                            <div class="severity-indicator">
+                                <span class="severity-dot high"></span> High Severity
+                            </div>
+                            <p><strong>Symptoms:</strong> Brown circular spots that become soft and sunken, often with concentric rings.</p>
+                            <p><strong>Conditions:</strong> Warm, wet weather during fruit development and ripening.</p>
+                            <p><strong>Treatment:</strong> Preventative fungicides, careful handling to avoid wounds, and proper storage conditions.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="disease-card" onclick="toggleExpand(this)">
+                        <div class="disease-image">
+                            <img src="{{ url_for('static', filename='bitterpit.jpg') }}" alt="Bitter Pit">
+                        </div>
+                        <h3>Bitter Pit <span class="expand-icon">+</span></h3>
+                        <p>Small, dark, sunken spots primarily near the calyx end of the fruit.</p>
+                        
+                        <div class="disease-details">
+                            <div class="severity-indicator">
+                                <span class="severity-dot low"></span> Low Severity
+                            </div>
+                            <p><strong>Symptoms:</strong> Small, dark, sunken spots on the fruit surface, primarily near the bottom of the fruit.</p>
+                            <p><strong>Conditions:</strong> Calcium deficiency, often worsened by irregular watering and excessive nitrogen.</p>
+                            <p><strong>Treatment:</strong> Calcium sprays, balanced fertilization, and consistent irrigation practices.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detection-container">
+                    <h2>Start Detecting Apple Diseases Now</h2>
+                    <p>Upload an image of your apple fruit for instant AI analysis and customized treatment recommendations.</p>
+                    <a class="try-now-btn" href="/disease-apple"><i class="fas fa-apple-alt"></i> Try Apple Disease Detection</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-info">
+                <p>Current Date and Time (UTC): <span id="current-datetime">2025-04-14 06:05:20</span></p>
+                <p>Logged in as: <span id="user-login">shelkesanchit632003</span></p>
+            </div>
+            <div>&copy; 2025 FarmAI. All rights reserved.</div>
+        </div>
+    </footer>
+    
+    <!-- Translation Container -->
+    <div id="translate-container">
+        <button id="translate-button"><i class="fas fa-globe"></i> Translate</button>
+        <div id="translate-dropdown">
+            <div id="google_translate_element"></div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script>
+        function switchTab(tab) {
+            // Hide all sections
+            document.querySelectorAll('.disease-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(tab + '-section').classList.add('active');
+            
+            // Update tab styling
+            document.querySelectorAll('.tab').forEach(tabElement => {
+                tabElement.classList.remove('active');
+            });
+            
+            // Find and activate the clicked tab
+            event.target.classList.add('active');
+        }
+        
+        function toggleExpand(card) {
+            // First collapse any other expanded cards
+            const expandedCards = document.querySelectorAll('.disease-card.expanded');
+            expandedCards.forEach(expandedCard => {
+                if (expandedCard !== card) {
+                    expandedCard.classList.remove('expanded');
+                    expandedCard.querySelector('.expand-icon').textContent = '+';
+                }
+            });
+            
+            // Toggle the clicked card
+            if (card.classList.contains('expanded')) {
+                card.classList.remove('expanded');
+                card.querySelector('.expand-icon').textContent = '+';
+            } else {
+                card.classList.add('expanded');
+                card.querySelector('.expand-icon').textContent = '-';
+            }
+        }
+
+        // Translation-related scripts
+        function loadGoogleTranslateScript() {
+            const script = document.createElement("script");
+            script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            script.type = "text/javascript";
+            document.body.appendChild(script);
+        }
+
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: "en",
+                    includedLanguages: "as,bn,gu,hi,kn,ks,ml,mr,ne,or,pa,sd,ta,te,ur,sa,bo,mai,brx,sat,dz,doi,mni,kok,lus,kha,en",
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                    autoDisplay: false,
+                },
+                "google_translate_element"
+            );
+        }
+
+        // Translation dropdown toggle
+        function initTranslateButton() {
+            const translateButton = document.getElementById("translate-button");
+            const translateDropdown = document.getElementById("translate-dropdown");
+
+            translateButton.addEventListener("click", function(e) {
+                e.stopPropagation();
+                translateDropdown.style.display = 
+                    translateDropdown.style.display === "none" || translateDropdown.style.display === "" 
+                    ? "block" 
+                    : "none";
+            });
+
+            // Close dropdown if clicked outside
+            document.addEventListener('click', function(event) {
+                if (!translateButton.contains(event.target) && !translateDropdown.contains(event.target)) {
+                    translateDropdown.style.display = "none";
+                }
+            });
+        }
+        
+        // When the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load scripts and initialize
+            loadGoogleTranslateScript();
+            initTranslateButton();
+            
+            // Initialize expand/collapse for disease cards
+            document.querySelectorAll('.disease-card').forEach(card => {
+                const detailsSection = card.querySelector('.disease-details');
+                if (detailsSection) {
+                    card.classList.add('expandable');
+                }
+            });
+            
+            // Add smooth scrolling for all anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
