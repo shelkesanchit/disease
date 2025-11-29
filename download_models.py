@@ -14,9 +14,22 @@ def is_lfs_pointer(filepath):
     """Check if file is a Git LFS pointer file."""
     if not os.path.exists(filepath):
         return False
-    with open(filepath, 'rb') as f:
-        first_line = f.readline()
-        return first_line.startswith(b'version https://git-lfs.github.com')
+    
+    # Check file size - LFS pointers are very small (< 200 bytes)
+    file_size = os.path.getsize(filepath)
+    if file_size < 500:  # Real model files are much larger
+        return True
+    
+    # Also check content
+    try:
+        with open(filepath, 'rb') as f:
+            first_line = f.readline()
+            if first_line.startswith(b'version https://git-lfs.github.com'):
+                return True
+    except:
+        pass
+    
+    return False
 
 def download_file(url, filepath):
     """Download a file from URL."""
@@ -31,19 +44,35 @@ def download_file(url, filepath):
 
 def main():
     """Download all required model files."""
+    print("=" * 60)
     print("Checking model files...")
+    print("=" * 60)
     
+    success_count = 0
     for filename, url in MODEL_FILES.items():
         if not os.path.exists(filename):
-            print(f"File {filename} not found.")
-            download_file(url, filename)
+            print(f"⚠ File {filename} not found.")
+            if download_file(url, filename):
+                success_count += 1
         elif is_lfs_pointer(filename):
-            print(f"File {filename} is a Git LFS pointer, downloading actual file...")
-            download_file(url, filename)
+            file_size = os.path.getsize(filename)
+            print(f"⚠ File {filename} is a Git LFS pointer ({file_size} bytes), downloading actual file...")
+            # Remove the LFS pointer file first
+            os.remove(filename)
+            if download_file(url, filename):
+                success_count += 1
         else:
-            print(f"✓ {filename} already exists")
+            file_size = os.path.getsize(filename)
+            print(f"✓ {filename} already exists ({file_size:,} bytes)")
+            success_count += 1
     
-    print("Model files check complete!")
+    print("=" * 60)
+    print(f"Model files check complete! {success_count}/{len(MODEL_FILES)} files ready")
+    print("=" * 60)
+    
+    if success_count < len(MODEL_FILES):
+        print("⚠ WARNING: Some model files are missing!")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
