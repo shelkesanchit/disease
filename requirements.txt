@@ -307,7 +307,6 @@ tinycss2==1.2.1
 tokenizers==0.22.1
 toml==0.10.2
 toolz==0.12.1
-torch==2.5.1
 tornado==6.4
 tqdm==4.66.2
 traitlets==5.14.3
