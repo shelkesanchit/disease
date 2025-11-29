@@ -10,6 +10,7 @@ pymongo==4.5.0
 # Machine Learning - TensorFlow CPU-only (smaller memory footprint)
 tensorflow-cpu==2.16.1
 numpy==1.26.4
+pandas==2.2.3
 joblib==1.4.0
 
 # Image Processing (lighter version)
