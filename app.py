@@ -7,11 +7,8 @@ import base64
 from werkzeug.utils import secure_filename
 from PIL import Image
 import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+# TensorFlow imports moved to load_models_if_needed() to avoid startup delay
 import cv2
-import tensorflow as tf
-from tensorflow.keras.preprocessing import image
 import joblib
 from datetime import datetime, timedelta
 import json
@@ -177,6 +174,9 @@ def load_models_if_needed():
     """Load models only when first needed to reduce startup time and memory"""
     global model, modelgrape, weather_model, scaler, encoder
     
+    # Import TensorFlow only when needed (avoids 30s startup delay)
+    from tensorflow.keras.models import load_model
+    
     if model is None:
         print("Loading grape_model.h5...")
         model = load_model("grape_model.h5")
@@ -283,9 +283,11 @@ if not os.path.exists(UPLOAD_FOLDERG):
 app.config['UPLOAD_FOLDERG'] = UPLOAD_FOLDERG
 
 def preprocess_image(image_path, target_size=(224, 224)):
-    img = load_img(image_path, target_size=target_size)
-    x = img_to_array(img)
-    x = x.astype('float32') / 255.
+    # Use PIL instead of TensorFlow for image loading
+    from PIL import Image
+    img = Image.open(image_path).resize(target_size)
+    x = np.array(img, dtype='float32')
+    x = x / 255.
     x = np.expand_dims(x, axis=0)
     return x
 
