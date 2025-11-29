@@ -1,1 +1,1 @@
-web: gunicorn --config gunicorn_config.py app:app
+web: python download_models.py && gunicorn --config gunicorn_config.py app:app
