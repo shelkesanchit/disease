@@ -440,13 +440,11 @@ def load_grape_model():
     print("All attempts to load the model failed.")
     print("Current working directory:", os.getcwd())
     print("Files in the current directory:", os.listdir('.'))
-    print("Python process owner:", os.getlogin())
+    # Don't call os.getlogin() - it fails in containers
     return False
 
-# Load the model at startup
-load_result = load_grape_model()
-if not load_result:
-    print("WARNING: Failed to load the grape variety model at startup. Predictions will not work!")
+# Don't load the model at startup - load it lazily when needed
+# This prevents startup crashes if the file is missing
 
 # OpenWeather API key
 API_KEY1 = os.getenv('OPENWEATHER_API_KEY')
