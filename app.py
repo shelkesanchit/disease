@@ -165,14 +165,40 @@ os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 app = Flask(__name__)
 CORS(app)
 
-# Load the models
-model = load_model("grape_model.h5")
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-# modelgrape = tf.keras.models.load_model("apple_disease.h5")  # DISABLED - Model removed
-modelgrape = None  # Apple disease model disabled
-weather_model = load_model('grape_leaf_disease_model.h5')
-scaler = joblib.load('scaler.pkl')  # Ensure this is a StandardScaler object
-encoder = joblib.load('label_encoder.pkl')  # Ensure this is a LabelEncoder object
+# Global model variables (will be loaded on first use)
+model = None
+modelgrape = None
+weather_model = None
+scaler = None
+encoder = None
+
+# Lazy load models function
+def load_models_if_needed():
+    """Load models only when first needed to reduce startup time and memory"""
+    global model, modelgrape, weather_model, scaler, encoder
+    
+    if model is None:
+        print("Loading grape_model.h5...")
+        model = load_model("grape_model.h5")
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        print("grape_model.h5 loaded successfully")
+    
+    if weather_model is None:
+        print("Loading grape_leaf_disease_model.h5...")
+        weather_model = load_model('grape_leaf_disease_model.h5')
+        print("grape_leaf_disease_model.h5 loaded successfully")
+    
+    if scaler is None:
+        print("Loading scaler.pkl...")
+        scaler = joblib.load('scaler.pkl')
+        print("scaler.pkl loaded successfully")
+    
+    if encoder is None:
+        print("Loading label_encoder.pkl...")
+        encoder = joblib.load('label_encoder.pkl')
+        print("label_encoder.pkl loaded successfully")
+    
+    # modelgrape remains None (Apple disease model disabled)
 
 # Class labels for grape diseases
 class_names = ['Black Rot', 'Leaf Blight', 'Healthy', 'ESCA']
@@ -894,6 +920,9 @@ def appleDis():
 
 @app.route('/predict', methods=['POST','GET'])
 def predict():
+    # Lazy load models on first use
+    load_models_if_needed()
+    
     if 'file' not in request.files:
         return jsonify({'error': 'No file part', 'is_leaf': False})
     
@@ -1121,6 +1150,9 @@ def get_weather():
 
 @app.route('/predict_disease', methods=['POST'])
 def predict_disease():
+    # Lazy load models on first use
+    load_models_if_needed()
+    
     data = request.json
     
     try:
