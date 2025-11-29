@@ -214,7 +214,7 @@ prometheus_client==0.20.0
 prompt-toolkit==3.0.43
 propcache==0.3.0
 proto-plus==1.25.0
-protobuf==6.33.1
+protobuf==4.25.3
 psutil==5.9.8
 pure-eval==0.2.2
 pyarrow==16.0.0
