@@ -1,8 +1,10 @@
 # Gunicorn configuration for memory-constrained environments
 import multiprocessing
+import os
 
-# Server socket
-bind = "0.0.0.0:10000"
+# Server socket - Railway provides PORT environment variable
+port = os.getenv("PORT", "10000")
+bind = f"0.0.0.0:{port}"
 
 # Worker processes
 workers = 1  # Use only 1 worker to minimize memory usage
