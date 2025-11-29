@@ -35,26 +35,34 @@ load_dotenv()
 # MongoDB connection string
 MONGO_URI = os.getenv('MONGO_URI')
 
+# Create MongoDB client (connection will be established lazily on first use)
+client = None
+db = None
+users_collection = None
+products_collection = None
+reviews_collection = None
+orders_collection = None
+
 try:
-    # Create MongoDB client
-    client = MongoClient(MONGO_URI)
-    
-    # Test the connection
-    client.server_info()
-    
-    # Get database
-    db = client.agrishield
-    
-    # Collections
-    users_collection = db.users
-    products_collection = db.products
-    reviews_collection = db.reviews
-    orders_collection = db.orders
-    
-    print("Successfully connected to MongoDB Atlas!")
+    if MONGO_URI:
+        # Create MongoDB client (doesn't connect yet - lazy connection)
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        
+        # Get database
+        db = client.agrishield
+        
+        # Collections
+        users_collection = db.users
+        products_collection = db.products
+        reviews_collection = db.reviews
+        orders_collection = db.orders
+        
+        print("MongoDB client initialized (will connect on first use)")
+    else:
+        print("Warning: MONGO_URI not set. Database features will be unavailable.")
 except Exception as e:
-    print(f"Error connecting to MongoDB: {e}")
-    raise
+    print(f"Error initializing MongoDB client: {e}")
+    # Don't raise - allow app to start without MongoDB
 
 def init_db():
     """Initialize database with required indexes"""
