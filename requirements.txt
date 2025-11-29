@@ -7,23 +7,17 @@ Werkzeug==3.1.3
 # Database
 pymongo==4.5.0
 
-# Machine Learning - TensorFlow and related
-tensorflow==2.16.1
+# Machine Learning - TensorFlow CPU-only (smaller memory footprint)
+tensorflow-cpu==2.16.1
 numpy==1.26.4
-scikit-learn==1.6.1
 joblib==1.4.0
 
-# Image Processing
+# Image Processing (lighter version)
 opencv-python-headless==4.11.0.86
 Pillow==10.4.0
 
-# Data Processing
-pandas==2.3.3
-
 # Google Generative AI
 google-generativeai==0.3.2
-google-api-core==2.19.0
-google-auth==2.38.0
 
 # PDF Generation
 reportlab==4.1.0
@@ -34,9 +28,9 @@ python-dotenv==1.2.1
 # HTTP Requests
 requests==2.31.0
 
-# Protocol Buffers (required by TensorFlow and Google packages)
-protobuf==4.25.3
+# Additional dependencies
+h5py==3.13.0
+keras==3.11.3
 
-# Additional dependencies for TensorFlow
 h5py==3.13.0
 keras==3.11.3
