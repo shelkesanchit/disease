@@ -711,6 +711,29 @@ def allowed_file(filename):
 def index():
     return render_template('main without login.html', diseases=class_names)
 
+@app.route('/health')
+def health():
+    """Health check endpoint for Railway"""
+    return jsonify({"status": "healthy", "models_loaded": model is not None})
+
+@app.route('/warmup')
+def warmup():
+    """Warmup endpoint to preload models after deployment"""
+    try:
+        load_models_if_needed()
+        return jsonify({
+            "status": "success", 
+            "message": "Models loaded successfully",
+            "models": {
+                "grape_model": model is not None,
+                "weather_model": weather_model is not None,
+                "scaler": scaler is not None,
+                "encoder": encoder is not None
+            }
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route('/chatbot')
 def chatbot():
     return render_template('chatbot.html')
