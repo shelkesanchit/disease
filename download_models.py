@@ -5,9 +5,9 @@ import sys
 import urllib.request
 
 MODEL_FILES = {
-    'grape_model.h5': 'https://media.githubusercontent.com/media/shelkesanchit/disease/main/grape_model.h5',
-    'grape_leaf_disease_model.h5': 'https://media.githubusercontent.com/media/shelkesanchit/disease/main/grape_leaf_disease_model.h5',
-    'grape_variety_model.pkl': 'https://media.githubusercontent.com/media/shelkesanchit/disease/main/grape_variety_model.pkl'
+    'grape_model.h5': 'https://huggingface.co/Sanchit6303/disease-models/resolve/main/grape_model.h5',
+    'grape_leaf_disease_model.h5': 'https://huggingface.co/Sanchit6303/disease-models/resolve/main/grape_leaf_disease_model.h5',
+    'grape_variety_model.pkl': 'https://huggingface.co/Sanchit6303/disease-models/resolve/main/grape_variety_model.pkl'
 }
 
 def is_lfs_pointer(filepath):
