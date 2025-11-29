@@ -1,8 +1,6 @@
-[phases.setup]
-nixPkgs = ['curl']
-
 [phases.install]
 cmds = [
+  'pip install -r requirements.txt',
   'curl -L -o grape_model.h5 "https://github.com/shelkesanchit/disease/raw/main/grape_model.h5"',
   'curl -L -o grape_leaf_disease_model.h5 "https://github.com/shelkesanchit/disease/raw/main/grape_leaf_disease_model.h5"',
   'curl -L -o grape_variety_model.pkl "https://github.com/shelkesanchit/disease/raw/main/grape_variety_model.pkl"'
